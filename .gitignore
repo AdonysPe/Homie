@@ -1,0 +1,15 @@
+node_modules
+.next
+out
+build
+.DS_Store
+*.pem
+npm-debug.log*
+.env*
+!.env.example
+.vercel
+next-env.d.ts
+tsconfig.tsbuildinfo
+
+# Claude Code local settings
+.claude/settings.local.json

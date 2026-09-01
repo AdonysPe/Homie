@@ -1,0 +1,78 @@
+import { MapPinIcon } from '@/components/icons';
+import { BrandMark } from './BrandMark';
+
+const SOCIAL_LINKS = [
+  { label: 'Instagram', href: 'https://instagram.com' },
+  { label: 'TikTok', href: 'https://tiktok.com' },
+  { label: 'WhatsApp', href: 'https://wa.me/5493510000000' },
+];
+
+const SECTION_LINKS = [
+  { label: 'Cómo funciona', href: '#como-funciona' },
+  { label: 'Publicar', href: '#publicar' },
+  { label: 'Mascotas', href: '#mascotas' },
+  { label: 'Preguntas', href: '#preguntas' },
+];
+
+export function SiteFooter() {
+  return (
+    // pb extra en mobile: la barra flotante de publicación no debe tapar el cierre.
+    <footer className="border-t border-cream-300 bg-cream-100 pb-28 pt-12 sm:pb-12">
+      <div className="shell grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="flex flex-col gap-3">
+          <BrandMark />
+          <p className="max-w-[22rem] text-sm text-ink-500">
+            Ayudamos a que cada mascota llegue a un buen hogar, sin juzgar a quien la entrega.
+          </p>
+        </div>
+
+        <nav aria-label="Secciones del sitio" className="flex flex-col gap-2">
+          <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-ink-400">Secciones</h2>
+          {SECTION_LINKS.map((link) => (
+            <a
+              key={link.href}
+              href={link.href}
+              className="text-sm text-ink-700 transition-colors hover:text-clay-600"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+
+        <nav aria-label="Redes sociales" className="flex flex-col gap-2">
+          <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-ink-400">Seguinos</h2>
+          {SOCIAL_LINKS.map((link) => (
+            <a
+              key={link.label}
+              href={link.href}
+              target="_blank"
+              rel="noreferrer noopener"
+              className="text-sm text-ink-700 transition-colors hover:text-clay-600"
+            >
+              {link.label}
+            </a>
+          ))}
+        </nav>
+
+        <div className="flex flex-col gap-2">
+          <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-ink-400">Contacto</h2>
+          <a
+            href="mailto:hola@homie.pet"
+            className="text-sm text-ink-700 transition-colors hover:text-clay-600"
+          >
+            hola@homie.pet
+          </a>
+          <p className="flex items-start gap-1.5 text-sm text-ink-500">
+            <MapPinIcon size={16} className="mt-0.5 shrink-0 text-sage-600" />
+            Argentina · Córdoba, Buenos Aires, Rosario y alrededores
+          </p>
+        </div>
+      </div>
+
+      <div className="shell mt-10 flex flex-col gap-2 border-t border-cream-300 pt-6 text-xs text-ink-400 sm:flex-row sm:items-center sm:justify-between">
+        <p>© {new Date().getFullYear()} Homie. Hecho con cuidado.</p>
+        <p>Publicar es gratis y siempre lo va a ser.</p>
+      </div>
+    </footer>
+  );
+}
