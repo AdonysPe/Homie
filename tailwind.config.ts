@@ -102,11 +102,22 @@ const config: Config = {
           '0%': { opacity: '1' },
           '100%': { opacity: '0.15' },
         },
+        // Columnas del muro de fotos: el contenido está duplicado, así que -50% cierra el bucle.
+        'wall-up': {
+          from: { transform: 'translate3d(0, 0, 0)' },
+          to: { transform: 'translate3d(0, -50%, 0)' },
+        },
+        'wall-down': {
+          from: { transform: 'translate3d(0, -50%, 0)' },
+          to: { transform: 'translate3d(0, 0, 0)' },
+        },
       },
       animation: {
         'fade-up': 'fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both',
         'pulse-ring': 'pulse-ring 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite',
         'spinner-fade': 'spinner-fade 0.8s linear infinite',
+        'wall-up': 'wall-up 60s linear infinite',
+        'wall-down': 'wall-down 60s linear infinite',
       },
     },
   },

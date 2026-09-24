@@ -58,13 +58,6 @@
   }
 }
 
-/* La grilla de fondo cálida del hero, en CSS puro para no costar JS. */
-.warm-grid {
-  background-image:
-    radial-gradient(60% 55% at 50% 0%, rgba(232, 183, 92, 0.16) 0%, transparent 70%),
-    radial-gradient(45% 45% at 85% 30%, rgba(192, 110, 77, 0.14) 0%, transparent 70%),
-    radial-gradient(50% 50% at 10% 60%, rgba(134, 164, 133, 0.16) 0%, transparent 70%);
-}
 
 .scrollbar-none {
   scrollbar-width: none;
