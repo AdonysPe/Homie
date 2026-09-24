@@ -51,7 +51,7 @@ function useShareActions({ pet, canonicalUrl }: ShareActionsProps) {
 
   const nativeShare = async () => {
     try {
-      await navigator.share({ title: `Adoptá a ${pet.name}`, text: buildShareText(pet), url });
+      await navigator.share({ title: `Adopta a ${pet.name}`, text: buildShareText(pet), url });
     } catch {
       // El usuario cerró la hoja de compartir: no es un error que haya que mostrar.
     }
@@ -67,7 +67,7 @@ export function SharePanel(props: ShareActionsProps) {
   return (
     <div className="surface flex flex-col gap-4 p-5">
       <div>
-        <p className="text-sm font-semibold text-ink-900">Compartí su historia</p>
+        <p className="text-sm font-semibold text-ink-900">Comparte su historia</p>
         <p className="mt-1 text-sm leading-snug text-ink-500">
           Cada vez que alguien comparte, {props.pet.name} está más cerca de un hogar.
         </p>

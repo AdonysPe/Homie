@@ -9,7 +9,7 @@ import { ChevronLink } from './ChevronLink';
 import { HeroMotionWall } from './HeroMotionWall';
 import { HeroVideoDialog } from './HeroVideoDialog';
 
-const TRUST_POINTS = ['Gratis, siempre', 'Vos elegís la familia', 'Tus datos, privados'];
+const TRUST_POINTS = ['Gratis, siempre', 'Tú eliges la familia', 'Tus datos, privados'];
 
 const enter = (delay: number) => ({
   initial: { opacity: 0, y: 16 },
@@ -38,11 +38,11 @@ export function HeroSection() {
         </motion.p>
 
         <motion.h1 {...enter(0.06)} className="mt-4 max-w-4xl text-display-xl font-display text-balance text-ink-900">
-          Un nuevo hogar empieza <span className="text-clay-500">acá.</span>
+          Un nuevo hogar empieza <span className="text-clay-500">aquí.</span>
         </motion.h1>
 
         <motion.p {...enter(0.14)} className="mt-6 max-w-2xl text-lede text-ink-500 text-balance">
-          Perro, gato, conejo o el que sea. Publicalo en 3 minutos y elegí vos con quién sigue su historia.
+          Perro, gato, conejo o el que sea. Publícalo en 3 minutos y elige tú con quién sigue su historia.
         </motion.p>
 
         <motion.div {...enter(0.22)} className="mt-9 flex flex-col items-center gap-4 sm:flex-row sm:gap-7">

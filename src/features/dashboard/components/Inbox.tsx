@@ -17,7 +17,7 @@ export function Inbox({ groups }: { groups: InboxGroup[] }) {
     return (
       <EmptyState
         title="No hay solicitudes todavía"
-        body="Cuando alguien se postule para adoptar a tu mascota, su carta de presentación va a aparecer acá. Tu email y tu teléfono siguen ocultos."
+        body="Cuando alguien se postule para adoptar a tu mascota, su carta de presentación va a aparecer aquí. Tu email y tu teléfono siguen ocultos."
       />
     );
   }
@@ -34,7 +34,7 @@ export function Inbox({ groups }: { groups: InboxGroup[] }) {
 
       <p className="flex items-center justify-center gap-1.5 text-xs text-ink-400">
         <LockIcon size={13} />
-        Tu email nunca se muestra. Tu teléfono se comparte solo si vos lo decidís en cada solicitud.
+        Tu email nunca se muestra. Tu teléfono se comparte solo si tú lo decides en cada solicitud.
       </p>
     </div>
   );
@@ -97,7 +97,7 @@ function InboxSection({ title, groups }: { title: string; groups: InboxGroup[] }
                         {REQUEST_STATUS_LABELS[request.status]}
                       </span>
                       <span className={cn('line-clamp-2 text-sm leading-snug', isUnread ? 'text-ink-700' : 'text-ink-400')}>
-                        {request.previewIsMine ? 'Vos: ' : ''}
+                        {request.previewIsMine ? 'Tú: ' : ''}
                         {request.preview}
                       </span>
                     </span>

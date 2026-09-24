@@ -69,7 +69,7 @@ function SignedInMenu({ account, className }: { account: AccountSummary; classNa
     const { error } = await authClient.signOut();
     setIsSigningOut(false);
     if (error) {
-      toast.error('No pudimos cerrar la sesión. Probá de nuevo.');
+      toast.error('No pudimos cerrar la sesión. Prueba de nuevo.');
       return;
     }
     setIsOpen(false);

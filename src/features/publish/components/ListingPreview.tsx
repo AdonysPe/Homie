@@ -22,7 +22,7 @@ export function ListingPreview({ form }: { form: UseFormReturn<PublishFormValues
       <p className="mb-2.5 text-xs font-semibold uppercase tracking-[0.12em] text-ink-400">
         Así se va a ver
       </p>
-      <PetCard listing={{ ...listing, city: listing.city || 'Tu ciudad' }} />
+      <PetCard listing={{ ...listing, city: listing.city || 'Tu distrito' }} />
       <p className="mt-3 text-xs leading-relaxed text-ink-400">
         Tu teléfono y tu email nunca aparecen en la tarjeta.
       </p>

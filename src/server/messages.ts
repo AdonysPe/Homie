@@ -12,7 +12,7 @@ export type RequestRole = 'owner' | 'adopter';
 /**
  * Privacidad asimétrica: el adoptante se presenta con su nombre real;
  * la familia que da en adopción se muestra como "Familia de …" y su
- * email o teléfono nunca se consultan acá.
+ * email o teléfono nunca se consultan aquí.
  */
 export const ownerDisplayName = (petName: string) => `Familia de ${petName}`;
 

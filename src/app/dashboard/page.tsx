@@ -44,8 +44,8 @@ export default async function DashboardPage({
         {!user.emailVerified ? (
           <div className="mt-6 rounded-card border border-honey-400/50 bg-honey-200/40 p-4 text-sm text-ink-700">
             <p className="leading-snug">
-              <strong className="font-semibold">Confirmá tu email</strong> para publicar y responder
-              mensajes. Buscá el enlace que te enviamos.
+              <strong className="font-semibold">Confirma tu email</strong> para publicar y responder
+              mensajes. Busca el enlace que te enviamos.
             </p>
             <ResendVerificationButton className="mt-2" />
           </div>

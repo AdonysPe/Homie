@@ -14,20 +14,20 @@ export const adoptionRequestSchema = z.object({
   adopterName: z
     .string()
     .trim()
-    .min(2, 'Escribí tu nombre')
+    .min(2, 'Escribe tu nombre')
     .max(60, 'Máximo 60 caracteres'),
   adopterCity: z
     .string()
     .trim()
-    .min(2, 'Contanos dónde vivís')
+    .min(2, 'Cuéntanos en qué distrito vives')
     .max(60, 'Máximo 60 caracteres'),
-  homeType: z.enum(HOME_TYPES, { error: 'Elegí el tipo de hogar' }),
+  homeType: z.enum(HOME_TYPES, { error: 'Elige el tipo de hogar' }),
   message: z
     .string()
     .trim()
     .min(
       ADOPTION_MESSAGE_MIN,
-      `Contale un poco más a la familia (mínimo ${ADOPTION_MESSAGE_MIN} caracteres)`,
+      `Cuéntale un poco más a la familia (mínimo ${ADOPTION_MESSAGE_MIN} caracteres)`,
     )
     .max(ADOPTION_MESSAGE_MAX, `Máximo ${ADOPTION_MESSAGE_MAX} caracteres`),
 });

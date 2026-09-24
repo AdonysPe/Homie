@@ -70,11 +70,11 @@ export function LegalDocument({ doc }: { doc: LegalDocumentContent }) {
           ))}
 
           <p className="border-t border-cream-300 pt-6 text-sm text-ink-400">
-            ¿Dudas sobre este documento? Escribinos a{' '}
+            ¿Dudas sobre este documento? Escríbenos a{' '}
             <a href={`mailto:${doc.contactEmail}`} className="legal-link">
               {doc.contactEmail}
             </a>
-            . También podés leer {doc.related.prefix}{' '}
+            . También puedes leer {doc.related.prefix}{' '}
             <Link href={doc.related.href} className="legal-link">
               {doc.related.label}
             </Link>

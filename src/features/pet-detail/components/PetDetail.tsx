@@ -75,7 +75,7 @@ const STATUS_NOTICES: Partial<Record<PetStatus, { title: string; body: string }>
   },
   pausada: {
     title: 'Publicación pausada',
-    body: 'Solo vos la ves. Reanudala desde tu panel cuando quieras volver a recibir mensajes.',
+    body: 'Solo tú la ves. Reanúdala desde tu panel cuando quieras volver a recibir mensajes.',
   },
 };
 
@@ -91,7 +91,7 @@ export function PetDetail({ pet, status: petStatus, isOwner, adoptionCta }: PetD
     { label: 'Edad', value: pet.ageLabel },
     { label: 'Género', value: sexLabel(pet.sex) },
     { label: 'Tamaño', value: size ?? 'No aplica' },
-    { label: 'Ciudad', value: pet.city },
+    { label: 'Distrito', value: pet.city },
   ];
 
   const sharePet = {
@@ -233,7 +233,7 @@ export function PetDetail({ pet, status: petStatus, isOwner, adoptionCta }: PetD
                   {idealHomeLabel(pet.idealHome)}
                 </Badge>
                 <Badge tone={pet.goodWithKids ? 'sage' : 'neutral'} className="px-3 py-1.5 text-sm">
-                  {pet.goodWithKids ? 'Se lleva bien con chicos' : 'Mejor sin chicos pequeños'}
+                  {pet.goodWithKids ? 'Se lleva bien con niños' : 'Mejor sin niños pequeños'}
                 </Badge>
                 <Badge tone={pet.goodWithPets ? 'sage' : 'neutral'} className="px-3 py-1.5 text-sm">
                   {pet.goodWithPets ? 'Convive con otras mascotas' : 'Mejor como única mascota'}
@@ -245,7 +245,7 @@ export function PetDetail({ pet, status: petStatus, isOwner, adoptionCta }: PetD
               <ShieldIcon size={20} className="mt-0.5 shrink-0 text-sage-600" />
               <p className="leading-snug">
                 Publicación directa de su familia, sin intermediarios. En {SITE.name} el teléfono y el
-                email de la familia están ocultos: vos te presentás con una carta, ella decide si responde
+                email de la familia están ocultos: tú te presentas con una carta, ella decide si responde
                 y cuándo compartir su WhatsApp.
               </p>
             </div>
@@ -265,7 +265,7 @@ export function PetDetail({ pet, status: petStatus, isOwner, adoptionCta }: PetD
                     <p className="text-sm font-semibold text-ink-900">¿Te interesa {pet.name}?</p>
                     <p className="mt-1 flex items-start gap-1.5 text-sm leading-snug text-ink-500">
                       <LockIcon size={15} className="mt-0.5 shrink-0 text-sage-600" />
-                      Presentate con una carta: la familia la lee y te responde por el chat de {SITE.name}.
+                      Preséntate con una carta: la familia la lee y te responde por el chat de {SITE.name}.
                     </p>
                   </div>
                   <AdoptionRequestButton petId={pet.id} petName={pet.name} state={adoptionCta} />

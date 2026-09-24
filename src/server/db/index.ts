@@ -47,7 +47,7 @@ function createDatabase() {
     await migratePglite(db, { migrationsFolder: path.join(process.cwd(), 'drizzle') });
     await seedDatabase(db);
   })();
-  // El error se propaga en cada `getDb()`; acá solo se registra una vez.
+  // El error se propaga en cada `getDb()`; aquí solo se registra una vez.
   ready.catch((error) => console.error('[db] No se pudo inicializar PGlite:', error));
 
   return { db, ready };

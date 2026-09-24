@@ -13,6 +13,7 @@
     "db:migrate": "drizzle-kit migrate",
     "db:seed": "jiti scripts/seed.ts",
     "db:demo-user": "jiti scripts/create-demo-user.ts",
+    "db:sync-seed": "jiti scripts/sync-seed-pets.ts",
     "db:studio": "drizzle-kit studio"
   },
   "dependencies": {

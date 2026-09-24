@@ -50,7 +50,7 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
 
         {!user.emailVerified ? (
           <div className="rounded-card bg-honey-200/50 p-4 text-sm text-ink-700">
-            Confirmá tu email para poder responder. <ResendVerificationButton />
+            Confirma tu email para poder responder. <ResendVerificationButton />
           </div>
         ) : null}
 

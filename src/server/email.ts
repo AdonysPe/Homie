@@ -45,13 +45,13 @@ const escapeHtml = (value: string) =>
 export function verificationEmail(name: string, url: string): Omit<EmailMessage, 'to'> {
   const safeName = escapeHtml(name);
   return {
-    subject: `Confirmá tu email en ${SITE.name}`,
-    text: `Hola ${name}:\n\nConfirmá tu email para publicar y escribirle a otras familias:\n${url}\n\nSi no creaste una cuenta en ${SITE.name}, ignorá este mensaje.`,
+    subject: `Confirma tu email en ${SITE.name}`,
+    text: `Hola ${name}:\n\nConfirma tu email para publicar y escribirle a otras familias:\n${url}\n\nSi no creaste una cuenta en ${SITE.name}, ignora este mensaje.`,
     html: `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#2A2521">
   <p style="font-size:17px;margin:0 0 16px">Hola ${safeName}:</p>
-  <p style="font-size:15px;line-height:1.5;color:#4A423B;margin:0 0 24px">Confirmá tu email para publicar y escribirle a otras familias.</p>
+  <p style="font-size:15px;line-height:1.5;color:#4A423B;margin:0 0 24px">Confirma tu email para publicar y escribirle a otras familias.</p>
   <a href="${escapeHtml(url)}" style="display:inline-block;background:#C06E4D;color:#fff;text-decoration:none;font-weight:600;padding:14px 24px;border-radius:999px">Confirmar mi email</a>
-  <p style="font-size:13px;color:#8C8077;margin:32px 0 0">Si no creaste una cuenta en ${SITE.name}, ignorá este mensaje.</p>
+  <p style="font-size:13px;color:#8C8077;margin:32px 0 0">Si no creaste una cuenta en ${SITE.name}, ignora este mensaje.</p>
 </div>`,
   };
 }

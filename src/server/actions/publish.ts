@@ -28,7 +28,7 @@ function sniffImageType(bytes: Uint8Array): string | null {
 async function readPhotos(formData: FormData) {
   const files = formData.getAll('photos').filter((entry): entry is File => entry instanceof File);
 
-  if (files.length === 0) return actionError('Subí al menos una foto.', 'invalid');
+  if (files.length === 0) return actionError('Sube al menos una foto.', 'invalid');
   if (files.length > MAX_PHOTOS) return actionError(`Máximo ${MAX_PHOTOS} fotos.`, 'invalid');
 
   const photos: { data: Uint8Array; mimeType: string }[] = [];
@@ -55,7 +55,7 @@ export async function publishPet(formData: FormData): Promise<ActionResult<{ slu
   try {
     raw = JSON.parse(String(formData.get('payload') ?? ''));
   } catch {
-    return actionError('No pudimos leer el formulario. Probá de nuevo.', 'invalid');
+    return actionError('No pudimos leer el formulario. Prueba de nuevo.', 'invalid');
   }
 
   const parsed = publishPayloadSchema.safeParse(raw);

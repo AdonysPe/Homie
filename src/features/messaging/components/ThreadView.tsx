@@ -53,7 +53,7 @@ export function ThreadView({ thread, hasUnread }: { thread: Thread; hasUnread: b
                 <p className="my-3 text-center text-xs font-medium text-ink-400">{formatShortDate(message.createdAt)}</p>
               ) : null}
               <div className={cn('flex flex-col gap-1', message.isMine ? 'items-end' : 'items-start')}>
-                <p className="sr-only">{message.isMine ? 'Vos' : thread.counterpart}:</p>
+                <p className="sr-only">{message.isMine ? 'Tú' : thread.counterpart}:</p>
                 <div
                   className={cn(
                     'max-w-[85%] whitespace-pre-wrap break-words rounded-[1.25rem] px-4 py-2.5 text-[0.95rem] leading-relaxed sm:max-w-[75%]',
@@ -107,7 +107,7 @@ function PrivacyBanner({ thread }: { thread: Thread }) {
     return (
       <p className="flex items-start gap-2 rounded-card bg-cream-200/70 p-3.5 text-sm text-ink-500">
         <LockIcon size={17} className="mt-px shrink-0 text-sage-600" />
-        La familia está leyendo tu carta. Cuando lo decida, va a compartir su contacto acá.
+        La familia está leyendo tu carta. Cuando lo decida, va a compartir su contacto aquí.
       </p>
     );
   }
@@ -119,7 +119,7 @@ function PrivacyBanner({ thread }: { thread: Thread }) {
     <div className="flex flex-col gap-3 rounded-panel border border-sage-200 bg-sage-50 p-4">
       <p className="flex items-center gap-2 text-sm font-semibold text-sage-800">
         <ShieldIcon size={18} className="text-sage-600" />
-        {ownerName} compartió su contacto con vos
+        {ownerName} compartió su contacto contigo
       </p>
       <a
         href={href}
@@ -185,7 +185,7 @@ function ShareContactCard({ thread }: { thread: Thread }) {
     <div className="flex flex-col gap-3 rounded-panel border border-cream-300 bg-cream-50 p-4 sm:flex-row sm:items-center">
       <p className="flex flex-1 items-start gap-2 text-sm text-ink-500">
         <LockIcon size={17} className="mt-px shrink-0 text-sage-600" />
-        {thread.counterpart} no ve tu teléfono ni tu email. Compartilo solo cuando te sientas seguro.
+        {thread.counterpart} no ve tu teléfono ni tu email. Compártelo solo cuando te sientas seguro.
       </p>
       <Button variant="secondary" size="sm" onClick={() => setIsConfirmOpen(true)}>
         Compartir mi contacto
@@ -255,7 +255,7 @@ function Composer({
       className="sticky bottom-0 -mx-1 flex items-end gap-2 rounded-t-[1.5rem] bg-cream-100/90 px-1 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl"
     >
       <label htmlFor="reply" className="sr-only">
-        Escribí tu respuesta
+        Escribe tu respuesta
       </label>
       <textarea
         id="reply"
@@ -264,7 +264,7 @@ function Composer({
         onKeyDown={onKeyDown}
         rows={1}
         maxLength={MESSAGE_MAX}
-        placeholder="Escribí un mensaje"
+        placeholder="Escribe un mensaje"
         className="max-h-40 min-h-[2.875rem] flex-1 resize-none rounded-[1.4rem] border border-cream-400 bg-white px-4 py-3 text-[0.95rem] leading-snug [field-sizing:content] placeholder:text-ink-300"
       />
       <button

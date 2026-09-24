@@ -72,7 +72,7 @@ export function PhotoUploader({ photos, onChange, error, petName }: PhotoUploade
             <UploadIcon size={22} />
           </span>
           <span className="text-sm font-semibold text-ink-900">
-            {isFull ? 'Ya tenés todas las fotos' : 'Arrastrá o elegí sus fotos'}
+            {isFull ? 'Ya tienes todas las fotos' : 'Arrastra o elige sus fotos'}
           </span>
           <span className="text-xs text-ink-400">
             Hasta {MAX_PHOTOS} fotos · JPG, PNG o WEBP · {MAX_PHOTO_SIZE_MB} MB cada una

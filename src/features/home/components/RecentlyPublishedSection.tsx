@@ -15,7 +15,7 @@ export function RecentlyPublishedSection() {
           <h2 id="publicadas-titulo" className="max-w-3xl text-display-md font-display text-balance text-ink-900">
             {MARQUEE_ITEMS.length} mascotas esperando esta semana.
           </h2>
-          <ChevronLink onClick={() => scrollToSection('mascotas')}>Conocelas</ChevronLink>
+          <ChevronLink onClick={() => scrollToSection('mascotas')}>Conócelas</ChevronLink>
         </div>
       </Reveal>
 

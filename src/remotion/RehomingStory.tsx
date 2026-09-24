@@ -83,7 +83,7 @@ function ClosingScene() {
         </span>
       </div>
       <p style={{ margin: 0, fontSize: 46, color: VIDEO_THEME.inkSoft, textAlign: 'center' }}>
-        Publicá a tu mascota en 3 minutos
+        Publica a tu mascota en 3 minutos
       </p>
       <div
         style={{
@@ -116,7 +116,7 @@ export function RehomingStory() {
       <Sequence from={90} durationInFrames={60}>
         <StepScene
           index={1}
-          title="Contanos cómo es"
+          title="Cuéntanos cómo es"
           caption="Nombre, edad y carácter"
           accent={VIDEO_THEME.clayLight}
           icon={<ChatIcon size={130} />}
@@ -126,7 +126,7 @@ export function RehomingStory() {
       <Sequence from={150} durationInFrames={60}>
         <StepScene
           index={2}
-          title="Subí sus fotos"
+          title="Sube sus fotos"
           caption="Con 2 o 3 alcanza"
           accent={VIDEO_THEME.sageLight}
           icon={<CameraIcon size={130} />}
@@ -136,8 +136,8 @@ export function RehomingStory() {
       <Sequence from={210} durationInFrames={60}>
         <StepScene
           index={3}
-          title="Elegís su familia"
-          caption="Vos decidís con quién sigue"
+          title="Eliges su familia"
+          caption="Tú decides con quién sigue"
           accent="#F7E3B8"
           icon={<HomeHeartIcon size={130} />}
         />

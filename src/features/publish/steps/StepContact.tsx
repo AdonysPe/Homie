@@ -25,8 +25,8 @@ export function StepContact({ form }: PublishStepProps) {
           {...register('ownerName')}
         />
         <TextField
-          label="Ciudad"
-          placeholder="Córdoba"
+          label="Distrito"
+          placeholder="Miraflores"
           autoComplete="address-level2"
           error={formState.errors.city?.message}
           {...register('city')}
@@ -38,7 +38,7 @@ export function StepContact({ form }: PublishStepProps) {
         name="contactMethod"
         render={({ field }) => (
           <OptionGroup<'whatsapp' | 'email'>
-            legend="¿Cómo preferís que te escriban?"
+            legend="¿Cómo prefieres que te escriban?"
             name="contactMethod"
             size="chip"
             options={[
@@ -57,7 +57,7 @@ export function StepContact({ form }: PublishStepProps) {
         type={contactMethod === 'whatsapp' ? 'tel' : 'email'}
         inputMode={contactMethod === 'whatsapp' ? 'tel' : 'email'}
         autoComplete={contactMethod === 'whatsapp' ? 'tel' : 'email'}
-        placeholder={contactMethod === 'whatsapp' ? '+54 351 123 4567' : 'ana@correo.com'}
+        placeholder={contactMethod === 'whatsapp' ? '+51 987 654 321' : 'ana@correo.com'}
         error={formState.errors.contactValue?.message}
         {...register('contactValue')}
       />
@@ -65,8 +65,8 @@ export function StepContact({ form }: PublishStepProps) {
       <div className="flex items-start gap-3 rounded-card bg-sage-50 p-4 text-sm text-sage-800">
         <ShieldIcon size={20} className="mt-0.5 shrink-0 text-sage-600" />
         <p className="leading-snug">
-          Tu teléfono y tu email nunca aparecen en la publicación. Los interesados te escriben por un
-          buzón anónimo y vos decidís si revelás tu contacto.
+          Tu teléfono y tu email nunca aparecen en la publicación. Los interesados se presentan con una
+          carta, te escriben por el chat de la app y tú decides si compartes tu WhatsApp.
         </p>
       </div>
 

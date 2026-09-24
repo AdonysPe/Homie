@@ -21,19 +21,19 @@ const always = () => true;
 
 /** Campos del formulario salvo las fotos (que al servidor llegan como archivos). */
 const publishFields = z.object({
-  species: z.enum(PET_SPECIES, { error: 'Elegí el tipo de mascota' }),
+  species: z.enum(PET_SPECIES, { error: 'Elige el tipo de mascota' }),
   name: z
     .string()
     .trim()
-    .min(2, 'Escribí su nombre (mínimo 2 letras)')
+    .min(2, 'Escribe su nombre (mínimo 2 letras)')
     .max(30, 'Máximo 30 caracteres'),
 
   ageValue: z
-    .number({ error: 'Indicá la edad' })
+    .number({ error: 'Indica la edad' })
     .min(0, 'La edad no puede ser negativa')
-    .max(40, 'Revisá la edad'),
+    .max(40, 'Revisa la edad'),
   ageUnit: z.enum(['meses', 'anos']),
-  sex: z.enum(PET_SEXES, { error: 'Elegí macho o hembra' }),
+  sex: z.enum(PET_SEXES, { error: 'Elige macho o hembra' }),
   size: z.enum(PET_SIZES).optional(),
 
   isSterilized: z.boolean(),
@@ -46,15 +46,15 @@ const publishFields = z.object({
     .trim()
     .max(SPECIAL_NEEDS_MAX, `Máximo ${SPECIAL_NEEDS_MAX} caracteres`)
     .optional(),
-  idealHome: z.enum(IDEAL_HOMES, { error: 'Elegí el entorno ideal' }),
+  idealHome: z.enum(IDEAL_HOMES, { error: 'Elige el entorno ideal' }),
   goodWithKids: z.boolean(),
   goodWithPets: z.boolean(),
 
   description: z.string().trim().max(280, 'Máximo 280 caracteres').optional(),
-  reason: z.enum(REHOMING_REASONS, { error: 'Elegí el motivo' }),
+  reason: z.enum(REHOMING_REASONS, { error: 'Elige el motivo' }),
 
-  ownerName: z.string().trim().min(2, 'Escribí tu nombre').max(40, 'Máximo 40 caracteres'),
-  city: z.string().trim().min(2, 'Escribí tu ciudad').max(60, 'Máximo 60 caracteres'),
+  ownerName: z.string().trim().min(2, 'Escribe tu nombre').max(40, 'Máximo 40 caracteres'),
+  city: z.string().trim().min(2, 'Escribe tu distrito').max(60, 'Máximo 60 caracteres'),
   contactMethod: z.enum(['whatsapp', 'email']),
   contactValue: z.string().trim().min(1, 'Necesitamos un contacto'),
   acceptsFollowUp: z
@@ -62,7 +62,7 @@ const publishFields = z.object({
     .refine((value) => value, 'Necesitamos tu permiso para avisarte de cada interesado'),
   acceptsTerms: z
     .boolean()
-    .refine((value) => value, 'Para publicar tenés que aceptar los Términos y la Política de Privacidad'),
+    .refine((value) => value, 'Para publicar tienes que aceptar los Términos y la Política de Privacidad'),
 });
 
 type PublishRuleFields = z.infer<typeof publishFields>;
@@ -70,7 +70,7 @@ type PublishRuleFields = z.infer<typeof publishFields>;
 /** Reglas que cruzan campos, compartidas por el esquema del cliente y el del servidor. */
 function publishRules(values: PublishRuleFields, ctx: z.RefinementCtx) {
   if (values.species && speciesHasSize(values.species) && !values.size) {
-    ctx.addIssue({ code: 'custom', path: ['size'], message: 'Elegí un tamaño' });
+    ctx.addIssue({ code: 'custom', path: ['size'], message: 'Elige un tamaño' });
   }
 
   if (values.hasMicrochip && values.microchipNumber) {
@@ -86,7 +86,7 @@ function publishRules(values: PublishRuleFields, ctx: z.RefinementCtx) {
 
   if (!values.contactValue) return;
   if (values.contactMethod === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(values.contactValue.trim())) {
-    ctx.addIssue({ code: 'custom', path: ['contactValue'], message: 'Revisá el email (ej. nombre@correo.com)' });
+    ctx.addIssue({ code: 'custom', path: ['contactValue'], message: 'Revisa el email (ej. nombre@correo.com)' });
   }
   if (values.contactMethod === 'whatsapp') {
     const digits = values.contactValue.replace(/\D/g, '');
@@ -94,7 +94,7 @@ function publishRules(values: PublishRuleFields, ctx: z.RefinementCtx) {
       ctx.addIssue({
         code: 'custom',
         path: ['contactValue'],
-        message: 'Revisá el número de WhatsApp (8 a 15 dígitos)',
+        message: 'Revisa el número de WhatsApp (8 a 15 dígitos)',
       });
     }
   }
@@ -105,7 +105,7 @@ export const publishSchema = publishFields
   .extend({
     photos: z
       .array(photoSchema)
-      .min(1, 'Subí al menos una foto: es lo que más ayuda a que lo adopten')
+      .min(1, 'Sube al menos una foto: es lo que más ayuda a que lo adopten')
       .max(MAX_PHOTOS, `Máximo ${MAX_PHOTOS} fotos`),
   })
   .superRefine(publishRules, { when: always });

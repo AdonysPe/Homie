@@ -3,7 +3,7 @@ import type { PetListing } from '@/types/pet';
 
 type ShareablePet = Pick<PetListing, 'name' | 'species' | 'sex' | 'ageLabel' | 'city'>;
 
-/** "¡Ayúdame a que Luna encuentre hogar! Es una perra de 3 años en Córdoba." */
+/** "¡Ayúdame a que Luna encuentre hogar! Es una perra de 3 años en Miraflores." */
 export function buildShareText(pet: ShareablePet): string {
   return `¡Ayúdame a que ${pet.name} encuentre hogar! Es ${speciesNoun(pet.species, pet.sex)} de ${pet.ageLabel} en ${pet.city}.`;
 }

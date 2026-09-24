@@ -33,9 +33,9 @@ export async function requireUserOrRedirect(returnTo: string): Promise<CurrentUs
 /** Para Server Actions: la autorización real, independiente del proxy. */
 export async function requireVerifiedUser(): Promise<{ ok: true; user: CurrentUser } | ActionError> {
   const user = await getCurrentUser();
-  if (!user) return actionError('Iniciá sesión para continuar.', 'unauthenticated');
+  if (!user) return actionError('Inicia sesión para continuar.', 'unauthenticated');
   if (!user.emailVerified) {
-    return actionError('Confirmá tu email para continuar. Revisá tu bandeja de entrada.', 'unverified');
+    return actionError('Confirma tu email para continuar. Revisa tu bandeja de entrada.', 'unverified');
   }
   return { ok: true, user };
 }

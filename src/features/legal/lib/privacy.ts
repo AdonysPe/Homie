@@ -2,25 +2,25 @@ import { SITE } from '@/lib/site';
 import type { LegalDocumentContent } from './types';
 
 /**
- * Texto de referencia con estructura legal real (Ley 25.326 de Protección de Datos Personales).
- * Antes de producción lo tiene que revisar un abogado matriculado.
+ * Texto de referencia con estructura legal real (Ley N.° 29733, Ley de Protección de Datos Personales del Perú).
+ * Antes de producción lo tiene que revisar un abogado colegiado en el Perú.
  */
 export const PRIVACY: LegalDocumentContent = {
   title: 'Política de privacidad',
-  description: `Qué datos recopila ${SITE.name}, para qué los usa y cómo podés controlarlos. Tus datos, privados.`,
+  description: `Qué datos recopila ${SITE.name}, para qué los usa y cómo puedes controlarlos. Tus datos, privados.`,
   updatedAt: { iso: '2026-09-23', label: '23 de septiembre de 2026' },
   summary: [
     'Tu teléfono y tu email nunca aparecen en una publicación.',
-    'Los interesados te escriben por un buzón anónimo: vos decidís si compartís tu contacto y cuándo.',
+    'Los interesados se presentan con una carta y te escriben por el chat de la app: tú decides si compartes tu contacto y cuándo.',
     'No vendemos ni alquilamos tus datos. Nunca.',
-    'Podés pedir ver, corregir o borrar tus datos cuando quieras.',
+    'Puedes pedir ver, corregir o borrar tus datos cuando quieras.',
   ],
   sections: [
     {
       id: 'responsable',
       title: 'Responsable del tratamiento',
       body: [
-        `${SITE.name} es responsable de la base de datos con la información que nos das al usar la Plataforma. Para cualquier consulta sobre privacidad, escribinos a ${SITE.privacyEmail}.`,
+        `${SITE.name} es responsable del banco de datos personales con la información que nos das al usar la Plataforma, inscrito en el Registro Nacional de Protección de Datos Personales. Para cualquier consulta sobre privacidad, escríbenos a ${SITE.privacyEmail}.`,
       ],
     },
     {
@@ -32,7 +32,7 @@ export const PRIVACY: LegalDocumentContent = {
           list: [
             'Datos de la mascota: especie, nombre, edad, género, tamaño, estado de salud, necesidades especiales y fotos. Son públicos.',
             'Tus datos de contacto: nombre, ciudad y WhatsApp o email. Son privados.',
-            'El número de microchip, si lo cargás. Es privado y solo se comparte con la familia adoptante.',
+            'El número de microchip, si lo cargas. Es privado y solo se comparte con la familia adoptante.',
             'El motivo por el que das en adopción. Es privado y solo lo usamos para mejorar el servicio.',
             'Datos técnicos básicos (tipo de navegador, páginas visitadas) de forma agregada, para detectar errores y abusos.',
           ],
@@ -47,7 +47,7 @@ export const PRIVACY: LegalDocumentContent = {
         {
           list: [
             'Mostrar la publicación de tu mascota.',
-            'Avisarte cuando alguien se interesa y permitir la conversación por el buzón anónimo.',
+            'Avisarte cuando alguien se postula y permitir la conversación por el chat interno.',
             'Revisar publicaciones y prevenir fraudes, venta de animales o maltrato.',
             'Acompañarte durante la adopción, si nos diste permiso.',
           ],
@@ -59,7 +59,7 @@ export const PRIVACY: LegalDocumentContent = {
       id: 'datos-ocultos',
       title: 'Datos ocultos por defecto',
       body: [
-        'Tu teléfono y tu email nunca se muestran en la publicación ni se envían a los interesados de forma automática. La conversación empieza en un buzón anónimo dentro de la Plataforma, y solo cuando vos elegís "revelar contacto" la otra persona puede verlos.',
+        'Tu teléfono y tu email nunca se muestran en la publicación ni se envían a los interesados de forma automática. La conversación empieza con la carta de presentación del interesado y sigue por el chat interno de la Plataforma, y solo cuando tú eliges "revelar contacto" la otra persona puede verlos.',
       ],
     },
     {
@@ -88,15 +88,15 @@ export const PRIVACY: LegalDocumentContent = {
       title: 'Consentimiento del usuario',
       body: [
         'Al marcar la casilla "He leído y acepto los Términos y la Política de Privacidad" al publicar, das tu consentimiento libre, expreso e informado para el tratamiento de tus datos según esta política.',
-        'Podés retirar tu consentimiento en cualquier momento eliminando tu publicación o escribiéndonos. Retirarlo no afecta el tratamiento realizado antes.',
+        'Puedes retirar tu consentimiento en cualquier momento eliminando tu publicación o escribiéndonos. Retirarlo no afecta el tratamiento realizado antes.',
       ],
     },
     {
       id: 'derechos',
       title: 'Tus derechos',
       body: [
-        `Tenés derecho a acceder, rectificar, actualizar y suprimir tus datos personales (Ley 25.326). Para ejercerlos, escribí a ${SITE.privacyEmail}; respondemos en un plazo máximo de 10 días hábiles para acceso y 5 días hábiles para rectificación o supresión.`,
-        'La Agencia de Acceso a la Información Pública, órgano de control de la Ley 25.326, tiene la atribución de atender las denuncias y reclamos que se interpongan con relación al incumplimiento de las normas sobre protección de datos personales.',
+        `Tienes derecho a acceder, rectificar, cancelar y oponerte al tratamiento de tus datos personales (derechos ARCO), según la Ley N.° 29733 y su Reglamento. Para ejercerlos, escribe a ${SITE.privacyEmail}; respondemos dentro de los plazos que establece el Reglamento.`,
+        'Si consideras que no atendimos tu solicitud, puedes presentar un reclamo ante la Autoridad Nacional de Protección de Datos Personales del Ministerio de Justicia y Derechos Humanos.',
       ],
     },
     {

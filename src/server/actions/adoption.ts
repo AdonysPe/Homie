@@ -44,7 +44,7 @@ export async function submitAdoptionRequest(
 
   if (!pet) return actionError('Esta publicación ya no existe.', 'invalid');
   if (pet.ownerId === user.id) {
-    return actionError('No podés postularte para tu propia mascota.', 'forbidden');
+    return actionError('No puedes postularte para tu propia mascota.', 'forbidden');
   }
   if (pet.status !== 'publicada') {
     return actionError('Esta publicación no está recibiendo solicitudes en este momento.', 'forbidden');
@@ -60,7 +60,7 @@ export async function submitAdoptionRequest(
       ),
     );
   if ((recent?.value ?? 0) >= REQUESTS_PER_DAY) {
-    return actionError('Enviaste muchas solicitudes hoy. Probá de nuevo mañana.', 'rate-limited');
+    return actionError('Enviaste muchas solicitudes hoy. Prueba de nuevo mañana.', 'rate-limited');
   }
 
   const requestId = randomUUID();
@@ -81,7 +81,7 @@ export async function submitAdoptionRequest(
     .returning({ id: adoptionRequests.id });
 
   if (inserted.length === 0) {
-    return actionError('Ya te postulaste para esta mascota. Seguí la conversación desde tu panel.', 'invalid');
+    return actionError('Ya te postulaste para esta mascota. Sigue la conversación desde tu panel.', 'invalid');
   }
 
   revalidatePath('/dashboard');

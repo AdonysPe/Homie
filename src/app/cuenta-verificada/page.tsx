@@ -7,7 +7,7 @@ import { getCurrentUser } from '@/server/session';
 
 export const metadata: Metadata = { title: 'Email confirmado', robots: { index: false } };
 
-/** Destino del enlace del email. Si el token venció, Better Auth vuelve acá con `?error=`. */
+/** Destino del enlace del email. Si el token venció, Better Auth vuelve aquí con `?error=`. */
 export default async function VerifiedPage({
   searchParams,
 }: {
@@ -25,7 +25,7 @@ export default async function VerifiedPage({
             <VerifiedIcon size={56} className="text-sage-500" />
             <h1 className="text-display-sm font-display">¡Email confirmado!</h1>
             <p className="text-[0.95rem] leading-relaxed text-ink-500">
-              Ya podés publicar y escribirle a otras familias. Tu perfil ahora muestra el sello de
+              Ya puedes publicar y escribirle a otras familias. Tu perfil ahora muestra el sello de
               verificado.
             </p>
             <div className="mt-2 flex w-full flex-col gap-2">
@@ -47,7 +47,7 @@ export default async function VerifiedPage({
           <>
             <h1 className="text-display-sm font-display">El enlace ya no sirve</h1>
             <p className="text-[0.95rem] leading-relaxed text-ink-500">
-              Puede que haya vencido o que ya lo hayas usado. Ingresá y pedí uno nuevo desde tu panel.
+              Puede que haya vencido o que ya lo hayas usado. Ingresa y pide uno nuevo desde tu panel.
             </p>
             <Link
               href="/ingresar?volver=/dashboard"

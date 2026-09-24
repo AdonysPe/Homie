@@ -95,7 +95,7 @@ function ReportForm({ petId, onDone }: { petId: string; onDone: () => void }) {
       />
       <TextArea
         label="Detalles (opcional)"
-        placeholder="Contanos qué viste. Cuanta más información, más rápido podemos actuar."
+        placeholder="Cuéntanos qué viste. Cuanta más información, más rápido podemos actuar."
         rows={4}
         maxLength={REPORT_DETAILS_MAX}
         currentLength={detailsLength}
@@ -106,7 +106,7 @@ function ReportForm({ petId, onDone }: { petId: string; onDone: () => void }) {
         {formState.isSubmitting ? 'Enviando…' : 'Enviar reporte'}
       </Button>
       <p className="-mt-2 text-center text-xs text-ink-400">
-        Si ves maltrato animal en curso, además de reportar, llamá a la línea local de denuncias.
+        Si ves maltrato animal en curso, además de reportarlo, denúncialo en la comisaría o en tu municipalidad (Ley N.° 30407).
       </p>
     </form>
   );

@@ -7,7 +7,7 @@ import { BrandMark } from './BrandMark';
 const SOCIAL_LINKS = [
   { label: 'Instagram', href: 'https://instagram.com' },
   { label: 'TikTok', href: 'https://tiktok.com' },
-  { label: 'WhatsApp', href: 'https://wa.me/5493510000000' },
+  { label: 'WhatsApp', href: 'https://wa.me/51900000000' },
 ];
 
 const SECTION_LINKS = [
@@ -61,7 +61,7 @@ export function SiteFooter() {
         </nav>
 
         <nav aria-label="Redes sociales" className="flex flex-col gap-2">
-          <h2 className="text-xs font-semibold text-ink-900">Seguinos</h2>
+          <h2 className="text-xs font-semibold text-ink-900">Síguenos</h2>
           {SOCIAL_LINKS.map((link) => (
             <a
               key={link.label}
@@ -85,7 +85,7 @@ export function SiteFooter() {
           </a>
           <p className="flex items-start gap-1.5 text-xs text-ink-500">
             <MapPinIcon size={16} className="mt-0.5 shrink-0 text-sage-600" />
-            Argentina · Córdoba, Buenos Aires, Rosario y alrededores
+            Perú · Lima Metropolitana y Callao
           </p>
         </div>
       </div>

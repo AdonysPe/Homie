@@ -15,7 +15,7 @@ export function buildHighlight(values: HighlightSource): string {
       ? `${values.description.slice(0, 57).trimEnd()}…`
       : values.description;
   }
-  if (values.goodWithKids) return 'Se lleva bien con chicos';
+  if (values.goodWithKids) return 'Se lleva bien con niños';
   if (values.goodWithPets) return 'Convive con otras mascotas';
   if (values.isVaccinated) return 'Vacunas al día';
   return 'Busca un nuevo hogar';

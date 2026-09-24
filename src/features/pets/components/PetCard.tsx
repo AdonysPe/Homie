@@ -113,7 +113,7 @@ export function PetCard({ listing, isHighlighted = false, priority = false }: Pe
       {listing.slug ? (
         <Link
           href={`/mascota/${listing.slug}`}
-          aria-label={`Conocé a ${listing.name}, ${speciesLabel(listing.species).toLowerCase()} en ${listing.city}`}
+          aria-label={`Conoce a ${listing.name}, ${speciesLabel(listing.species).toLowerCase()} en ${listing.city}`}
           className="absolute inset-0 z-10 rounded-panel focus-visible:rounded-panel"
         />
       ) : null}

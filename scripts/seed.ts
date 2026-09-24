@@ -12,7 +12,7 @@ import { seedDatabase } from '../src/server/db/seed';
 
 async function main() {
   const url = process.env.DATABASE_URL;
-  if (!url) throw new Error('Definí DATABASE_URL');
+  if (!url) throw new Error('Define DATABASE_URL');
 
   const pool = new Pool({ connectionString: url });
   await seedDatabase(drizzle(pool, { schema }));

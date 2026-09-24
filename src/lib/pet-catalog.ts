@@ -95,7 +95,7 @@ export const sexLabel = (sex: PetSex): string =>
 
 export const IDEAL_HOME_OPTIONS: { value: IdealHome; label: string; hint: string }[] = [
   { value: 'casa-con-patio', label: 'Casa con patio', hint: 'Necesita espacio al aire libre' },
-  { value: 'departamento', label: 'Departamento', hint: 'Se adapta a espacios chicos' },
+  { value: 'departamento', label: 'Departamento', hint: 'Se adapta a espacios pequeños' },
   {
     value: 'experiencia-previa',
     label: 'Experiencia previa requerida',

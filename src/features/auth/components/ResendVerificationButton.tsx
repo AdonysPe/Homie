@@ -16,7 +16,7 @@ export function ResendVerificationButton({ className }: { className?: string }) 
     const { data } = await authClient.getSession();
     if (!data) {
       setStatus('idle');
-      toast.error('Tu sesión expiró. Volvé a ingresar.');
+      toast.error('Tu sesión expiró. Vuelve a ingresar.');
       return;
     }
 
@@ -27,7 +27,7 @@ export function ResendVerificationButton({ className }: { className?: string }) 
 
     if (error) {
       setStatus('idle');
-      toast.error(error.message ?? 'No pudimos reenviar el email. Probá en un rato.');
+      toast.error(error.message ?? 'No pudimos reenviar el email. Prueba en un rato.');
       return;
     }
     setStatus('sent');

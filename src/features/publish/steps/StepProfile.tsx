@@ -25,7 +25,7 @@ export function StepProfile({ form }: PublishStepProps) {
           step={0.5}
           inputMode="decimal"
           error={formState.errors.ageValue?.message}
-          hint="Si no la sabés con exactitud, estimá."
+          hint="Si no la sabes con exactitud, estima."
           {...register('ageValue', { valueAsNumber: true })}
         />
         <Controller

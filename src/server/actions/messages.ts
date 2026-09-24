@@ -45,7 +45,7 @@ export async function sendReply(input: ReplyInput): Promise<ActionResult<{ id: s
   const isParticipant = request && (request.ownerId === user.id || request.adopterId === user.id);
   if (!isParticipant) return actionError('No encontramos esta solicitud.', 'forbidden');
   if (await isRateLimited(user.id)) {
-    return actionError('Enviaste muchos mensajes en poco tiempo. Probá de nuevo en un rato.', 'rate-limited');
+    return actionError('Enviaste muchos mensajes en poco tiempo. Prueba de nuevo en un rato.', 'rate-limited');
   }
 
   const now = new Date();

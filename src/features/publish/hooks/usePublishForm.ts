@@ -15,7 +15,7 @@ import type { PublishFormValues } from '../types';
 export type PublishStatus = 'editing' | 'sending' | 'published';
 
 /**
- * Toda la lógica del wizard vive acá: los componentes solo pintan.
+ * Toda la lógica del wizard vive aquí: los componentes solo pintan.
  * Cada paso valida únicamente sus campos, así el usuario nunca ve
  * errores de campos que todavía no vio.
  */
@@ -66,7 +66,7 @@ export function usePublishForm() {
       resized.forEach((blob, index) => formData.append('photos', blob, `foto-${index + 1}.jpg`));
     } catch {
       setStatus('editing');
-      toast.error('No pudimos procesar una de las fotos. Probá con otra (JPG o PNG).');
+      toast.error('No pudimos procesar una de las fotos. Prueba con otra (JPG o PNG).');
       return;
     }
 
@@ -81,7 +81,7 @@ export function usePublishForm() {
       setStatus('published');
     } catch {
       setStatus('editing');
-      toast.error('Se cortó la conexión. Tus datos siguen acá: probá de nuevo.');
+      toast.error('Se cortó la conexión. Tus datos siguen aquí: prueba de nuevo.');
     }
   });
 

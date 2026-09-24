@@ -11,7 +11,7 @@ const { pets, user, adoptionRequests, messages } = schema;
 /**
  * Columnas PÚBLICAS de una mascota. Es la única proyección que se usa para
  * construir lo que ve cualquier visitante: los campos privados (contacto,
- * microchip, motivo, nombre de la familia) no están acá a propósito.
+ * microchip, motivo, nombre de la familia) no están aquí a propósito.
  */
 const publicColumns = {
   id: pets.id,

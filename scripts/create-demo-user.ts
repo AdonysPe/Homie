@@ -19,8 +19,8 @@ const DEMO_USER_ID = 'demo-familias';
 async function main() {
   const url = process.env.DATABASE_URL;
   const password = process.env.DEMO_PASSWORD;
-  if (!url) throw new Error('Definí DATABASE_URL');
-  if (!password || password.length < 8) throw new Error('Definí DEMO_PASSWORD (mínimo 8 caracteres)');
+  if (!url) throw new Error('Define DATABASE_URL');
+  if (!password || password.length < 8) throw new Error('Define DEMO_PASSWORD (mínimo 8 caracteres)');
 
   const pool = new Pool({ connectionString: url });
   const db = drizzle(pool, { schema });

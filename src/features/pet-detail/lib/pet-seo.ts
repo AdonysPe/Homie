@@ -7,7 +7,7 @@ import type { PetListing } from '@/types/pet';
 
 export const petPath = (pet: PetListing): string => `/mascota/${pet.slug}`;
 
-/** "Adoptar a Luna - Perro en Córdoba" (el layout agrega "| Homie"). */
+/** "Adoptar a Luna - Perro en Miraflores" (el layout agrega "| Homie"). */
 export const petTitle = (pet: PetListing): string =>
   `Adoptar a ${pet.name} - ${speciesLabel(pet.species)} en ${pet.city}`;
 

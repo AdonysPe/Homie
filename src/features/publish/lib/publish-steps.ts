@@ -21,7 +21,7 @@ export const PUBLISH_STEPS: PublishStep[] = [
   {
     id: 'perfil',
     label: 'Perfil',
-    title: 'Contanos cómo es',
+    title: 'Cuéntanos cómo es',
     helper: 'Esto ayuda a filtrar a los interesados correctos.',
     fields: ['ageValue', 'ageUnit', 'sex', 'size'],
   },
@@ -53,7 +53,7 @@ export const PUBLISH_STEPS: PublishStep[] = [
     id: 'contacto',
     label: 'Contacto',
     title: '¿Cómo te avisamos?',
-    helper: 'Tus datos quedan ocultos hasta que vos decidas compartirlos.',
+    helper: 'Tus datos quedan ocultos hasta que tú decidas compartirlos.',
     fields: [
       'ownerName',
       'city',

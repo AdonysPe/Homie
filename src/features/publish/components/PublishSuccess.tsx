@@ -7,9 +7,9 @@ import { ChatIcon, CheckIcon, HomeHeartIcon, ShieldIcon } from '@/components/ico
 import { Button } from '@/components/ui/Button';
 
 const NEXT_STEPS = [
-  { icon: ChatIcon, text: 'Los interesados te escriben por el buzón anónimo.' },
+  { icon: ChatIcon, text: 'Los interesados se presentan con una carta.' },
   { icon: ShieldIcon, text: 'Tu teléfono y tu email siguen ocultos.' },
-  { icon: HomeHeartIcon, text: 'Vos elegís con quién sigue su historia.' },
+  { icon: HomeHeartIcon, text: 'Tú eliges con quién sigue su historia.' },
 ];
 
 const linkButton =
@@ -47,7 +47,7 @@ export function PublishSuccess({
 
       <div className="max-w-prose">
         <h3 className="text-display-sm font-display">Listo. {petName} ya está publicado.</h3>
-        <p className="mt-2 text-ink-500">Compartí su ficha para que llegue a más personas.</p>
+        <p className="mt-2 text-ink-500">Comparte su ficha para que llegue a más personas.</p>
       </div>
 
       <ul className="flex w-full max-w-md flex-col gap-2 text-left">

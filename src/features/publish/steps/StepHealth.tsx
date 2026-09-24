@@ -119,7 +119,7 @@ export function StepHealth({ form }: PublishStepProps) {
             control={control}
             name="goodWithKids"
             render={({ field }) => (
-              <ToggleRow label="Se lleva bien con chicos" checked={field.value} onChange={field.onChange} />
+              <ToggleRow label="Se lleva bien con niños" checked={field.value} onChange={field.onChange} />
             )}
           />
           <Controller

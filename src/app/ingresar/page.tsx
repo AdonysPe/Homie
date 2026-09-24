@@ -8,7 +8,7 @@ import { getCurrentUser } from '@/server/session';
 
 export const metadata: Metadata = {
   title: 'Ingresar',
-  description: 'Ingresá a tu cuenta para publicar y responder mensajes.',
+  description: 'Ingresa a tu cuenta para publicar y responder mensajes.',
   robots: { index: false },
 };
 

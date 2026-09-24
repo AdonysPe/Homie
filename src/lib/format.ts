@@ -46,12 +46,12 @@ export function slugify(value: string): string {
     .slice(0, 40);
 }
 
-const shortDate = new Intl.DateTimeFormat('es-AR', {
+const shortDate = new Intl.DateTimeFormat('es-PE', {
   day: 'numeric',
   month: 'short',
   timeZone: SITE.timeZone,
 });
-const timeOfDay = new Intl.DateTimeFormat('es-AR', {
+const timeOfDay = new Intl.DateTimeFormat('es-PE', {
   hour: '2-digit',
   minute: '2-digit',
   timeZone: SITE.timeZone,

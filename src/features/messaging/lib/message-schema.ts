@@ -8,7 +8,7 @@ export const replySchema = z.object({
   content: z
     .string()
     .trim()
-    .min(1, 'Escribí un mensaje')
+    .min(1, 'Escribe un mensaje')
     .max(MESSAGE_MAX, `Máximo ${MESSAGE_MAX} caracteres`),
 });
 

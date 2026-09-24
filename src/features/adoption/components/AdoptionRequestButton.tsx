@@ -86,14 +86,14 @@ export function AdoptionRequestButton({ petId, petName, state, variant = 'panel'
             <HomeHeartIcon size={19} />
             {label}
           </button>
-          <Sheet open={isOpen} onClose={() => setIsOpen(false)} title="Confirmá tu email primero">
+          <Sheet open={isOpen} onClose={() => setIsOpen(false)} title="Confirma tu email primero">
             <div className="flex flex-col items-center gap-4 pb-2 text-center">
               <span className="flex h-14 w-14 items-center justify-center rounded-full bg-clay-100 text-clay-600">
                 <MailIcon size={26} />
               </span>
               <p className="text-[0.95rem] leading-relaxed text-ink-500">
                 Para cuidar a las familias, solo las cuentas con email confirmado pueden postularse.
-                Buscá el email que te enviamos y tocá el enlace.
+                Busca el email que te enviamos y toca el enlace.
               </p>
               <ResendVerificationButton className="text-sm" />
             </div>
@@ -136,7 +136,7 @@ function ReadyButton({
       <Sheet
         open={isOpen}
         onClose={close}
-        title={sentRequestId ? '¡Solicitud enviada!' : `Postulate para adoptar a ${petName}`}
+        title={sentRequestId ? '¡Solicitud enviada!' : `Postúlate para adoptar a ${petName}`}
         description={
           sentRequestId ? undefined : (
             <span className="flex items-start gap-1.5">
@@ -196,7 +196,7 @@ function AdoptionRequestForm({
       }
       onSent(result.data.requestId);
     } catch {
-      toast.error('Se cortó la conexión. Tu mensaje sigue acá: probá de nuevo.');
+      toast.error('Se cortó la conexión. Tu mensaje sigue aquí: prueba de nuevo.');
     }
   });
 
@@ -211,9 +211,9 @@ function AdoptionRequestForm({
           {...register('adopterName')}
         />
         <TextField
-          label="Ciudad o zona"
+          label="Distrito"
           autoComplete="address-level2"
-          placeholder="Nueva Córdoba"
+          placeholder="San Isidro"
           error={formState.errors.adopterCity?.message}
           {...register('adopterCity')}
         />
@@ -227,8 +227,8 @@ function AdoptionRequestForm({
       />
 
       <TextArea
-        label={`¿Por qué querés adoptar a ${petName}?`}
-        placeholder={`Contanos quién vive con vos, tu experiencia con mascotas y cómo sería el día a día de ${petName} en tu casa.`}
+        label={`¿Por qué quieres adoptar a ${petName}?`}
+        placeholder={`Cuéntanos quién vive contigo, tu experiencia con mascotas y cómo sería el día a día de ${petName} en tu casa.`}
         rows={6}
         maxLength={ADOPTION_MESSAGE_MAX}
         currentLength={messageLength}

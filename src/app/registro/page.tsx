@@ -8,7 +8,7 @@ import { getCurrentUser } from '@/server/session';
 
 export const metadata: Metadata = {
   title: 'Crear cuenta',
-  description: 'Creá tu cuenta gratis para publicar a tu mascota o escribirle a una familia.',
+  description: 'Crea tu cuenta gratis para publicar a tu mascota o escribirle a una familia.',
   robots: { index: false },
 };
 

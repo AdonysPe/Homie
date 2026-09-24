@@ -15,16 +15,16 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(SITE.url),
   title: {
-    default: `${SITE.name} · Publicá a tu mascota en adopción`,
+    default: `${SITE.name} · Publica a tu mascota en adopción`,
     template: `%s | ${SITE.name}`,
   },
   description:
-    'Publicá a tu mascota en 3 minutos y elegí vos su nueva familia. Perros, gatos, conejos, aves y más. Gratis y sin intermediarios.',
-  keywords: ['dar en adopción', 'rehoming', 'mascotas', 'perros', 'gatos', 'adopción responsable'],
+    'Publica a tu mascota en 3 minutos y elige tú su nueva familia en Lima. Perros, gatos, conejos, aves y más. Gratis y sin intermediarios.',
+  keywords: ['adopción de mascotas Lima', 'dar en adopción', 'adoptar perro Lima', 'adoptar gato Lima', 'mascotas', 'adopción responsable Perú'],
   alternates: { canonical: '/' },
   openGraph: {
-    title: `${SITE.name} · Publicá a tu mascota en adopción`,
-    description: 'Publicá a tu mascota en 3 minutos y elegí vos su nueva familia.',
+    title: `${SITE.name} · Publica a tu mascota en adopción`,
+    description: 'Publica a tu mascota en 3 minutos y elige tú su nueva familia.',
     type: 'website',
     siteName: SITE.name,
     locale: SITE.locale,
@@ -39,7 +39,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={inter.variable}>
+    <html lang="es-PE" className={inter.variable}>
       <body>
         <a
           href="#contenido"

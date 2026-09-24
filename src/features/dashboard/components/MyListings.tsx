@@ -22,7 +22,7 @@ export function MyListings({ pets }: { pets: OwnerPet[] }) {
     return (
       <EmptyState
         title="Todavía no publicaste"
-        body="Cuando publiques a tu mascota, vas a verla acá con sus mensajes."
+        body="Cuando publiques a tu mascota, vas a verla aquí con sus mensajes."
         action={{ href: '/#publicar', label: 'Publicar a mi mascota' }}
       />
     );

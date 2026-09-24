@@ -33,7 +33,7 @@ export async function reportPet(input: ReportInput): Promise<ActionResult<{ unde
 
   if (!pet) return actionError('Esta publicación ya no existe.', 'invalid');
   if (user && pet.ownerId === user.id) {
-    return actionError('No podés reportar tu propia publicación.', 'forbidden');
+    return actionError('No puedes reportar tu propia publicación.', 'forbidden');
   }
 
   const inserted = await db

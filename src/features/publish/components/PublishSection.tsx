@@ -25,8 +25,8 @@ export function PublishSection({ access }: { access: PublishAccess }) {
           <SectionHeading
             align="center"
             eyebrow="Publicación"
-            title={<span id="publicar-titulo">Contanos de tu mascota.</span>}
-            description="Cinco pasos cortos. Podés volver atrás cuando quieras."
+            title={<span id="publicar-titulo">Cuéntanos de tu mascota.</span>}
+            description="Cinco pasos cortos. Puedes volver atrás cuando quieras."
           />
         </Reveal>
 
@@ -49,11 +49,11 @@ function PublishGate({ access }: { access: Exclude<PublishAccess, 'ready'> }) {
 
       <div>
         <h3 className="text-display-sm font-display">
-          {isUnverified ? 'Confirmá tu email para publicar' : 'Creá tu cuenta para publicar'}
+          {isUnverified ? 'Confirma tu email para publicar' : 'Crea tu cuenta para publicar'}
         </h3>
         <p className="mx-auto mt-2 max-w-prose leading-relaxed text-ink-500">
           {isUnverified
-            ? 'Te enviamos un enlace al registrarte. Tocalo y volvé: el formulario te va a estar esperando.'
+            ? 'Te enviamos un enlace al registrarte. Tócalo y vuelve: el formulario te va a estar esperando.'
             : 'Lleva 30 segundos. Así cada publicación tiene una persona real detrás, y los interesados te escriben sin ver nunca tu teléfono ni tu email.'}
         </p>
       </div>
