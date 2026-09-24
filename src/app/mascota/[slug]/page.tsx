@@ -3,10 +3,10 @@ import { notFound } from 'next/navigation';
 
 import { PageHeader } from '@/components/layout/PageHeader';
 import { SiteFooter } from '@/features/home/components/SiteFooter';
-import type { ContactState } from '@/features/messaging/components/ContactFamilyButton';
+import type { AdoptionCtaState } from '@/features/adoption/components/AdoptionRequestButton';
 import { PetDetail } from '@/features/pet-detail/components/PetDetail';
 import { buildPetMetadata } from '@/features/pet-detail/lib/pet-seo';
-import { findConversationId } from '@/server/messages';
+import { findRequestId } from '@/server/messages';
 import { getPetBySlug, type PetPageData } from '@/server/pets';
 import { getCurrentUser, type CurrentUser } from '@/server/session';
 
@@ -30,7 +30,7 @@ const CLOSED_REASONS: Partial<Record<PetPageData['status'], string>> = {
   'en-revision': 'Publicación en revisión',
 };
 
-async function resolveContactState(pet: PetPageData, user: CurrentUser | null): Promise<ContactState> {
+async function resolveAdoptionCta(pet: PetPageData, user: CurrentUser | null): Promise<AdoptionCtaState> {
   if (user?.id === pet.ownerId) return { kind: 'owner' };
 
   const closedReason = CLOSED_REASONS[pet.status];
@@ -40,9 +40,9 @@ async function resolveContactState(pet: PetPageData, user: CurrentUser | null): 
       : { kind: 'anonymous', signInHref: `/ingresar?volver=${encodeURIComponent(`/mascota/${pet.listing.slug}`)}` };
   }
 
-  // Quien ya escribió siempre puede volver a su conversación, aunque la publicación cierre.
-  const conversationId = await findConversationId(pet.listing.id, user.id);
-  if (conversationId) return { kind: 'existing', conversationId };
+  // Quien ya se postuló siempre puede volver a su solicitud, aunque la publicación cierre.
+  const requestId = await findRequestId(pet.listing.id, user.id);
+  if (requestId) return { kind: 'requested', requestId };
   if (closedReason) return { kind: 'closed', reason: closedReason };
   if (!user.emailVerified) return { kind: 'unverified' };
   return { kind: 'ready', suggestedName: user.name };
@@ -57,12 +57,12 @@ export default async function PetPage({ params }: PetPageProps) {
   // Una publicación pausada desaparece para todos menos para su familia.
   if (pet.status === 'pausada' && !isOwner) notFound();
 
-  const contactState = await resolveContactState(pet, user);
+  const adoptionCta = await resolveAdoptionCta(pet, user);
 
   return (
     <>
       <PageHeader backHref="/#mascotas" backLabel="Mascotas" />
-      <PetDetail pet={pet.listing} status={pet.status} isOwner={isOwner} contactState={contactState} />
+      <PetDetail pet={pet.listing} status={pet.status} isOwner={isOwner} adoptionCta={adoptionCta} />
       <SiteFooter />
     </>
   );

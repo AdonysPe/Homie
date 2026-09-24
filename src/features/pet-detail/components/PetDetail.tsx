@@ -18,9 +18,9 @@ import {
 import { Badge } from '@/components/ui/Badge';
 import { VerifiedBadge } from '@/features/auth/components/VerifiedBadge';
 import {
-  ContactFamilyButton,
-  type ContactState,
-} from '@/features/messaging/components/ContactFamilyButton';
+  AdoptionRequestButton,
+  type AdoptionCtaState,
+} from '@/features/adoption/components/AdoptionRequestButton';
 import { statusPresentation } from '@/features/pets/lib/listing-status';
 import { ReportButton } from '@/features/reports/components/ReportButton';
 import { cn } from '@/lib/cn';
@@ -65,7 +65,7 @@ interface PetDetailProps {
   /** Estado real en la base (el de `pet.status` es el de presentación). */
   status: PetStatus;
   isOwner: boolean;
-  contactState: ContactState;
+  adoptionCta: AdoptionCtaState;
 }
 
 const STATUS_NOTICES: Partial<Record<PetStatus, { title: string; body: string }>> = {
@@ -79,7 +79,7 @@ const STATUS_NOTICES: Partial<Record<PetStatus, { title: string; body: string }>
   },
 };
 
-export function PetDetail({ pet, status: petStatus, isOwner, contactState }: PetDetailProps) {
+export function PetDetail({ pet, status: petStatus, isOwner, adoptionCta }: PetDetailProps) {
   const status = statusPresentation(pet.status);
   const isAdopted = petStatus === 'adoptada';
   const isActive = petStatus === 'publicada';
@@ -244,9 +244,9 @@ export function PetDetail({ pet, status: petStatus, isOwner, contactState }: Pet
             <div className="flex items-start gap-3 rounded-card border border-cream-300 bg-cream-50 p-4 text-sm text-ink-500">
               <ShieldIcon size={20} className="mt-0.5 shrink-0 text-sage-600" />
               <p className="leading-snug">
-                Publicación directa de su familia, sin intermediarios. En {SITE.name} los datos de
-                contacto están ocultos: la conversación empieza en un buzón anónimo y la familia decide
-                cuándo compartir su teléfono.
+                Publicación directa de su familia, sin intermediarios. En {SITE.name} el teléfono y el
+                email de la familia están ocultos: vos te presentás con una carta, ella decide si responde
+                y cuándo compartir su WhatsApp.
               </p>
             </div>
 
@@ -259,16 +259,16 @@ export function PetDetail({ pet, status: petStatus, isOwner, contactState }: Pet
 
           <aside className="hidden lg:block">
             <div className="sticky top-24 flex flex-col gap-4">
-              {!isAdopted || contactState.kind === 'existing' ? (
+              {!isAdopted || adoptionCta.kind === 'requested' ? (
                 <div className="surface flex flex-col gap-4 p-5">
                   <div>
                     <p className="text-sm font-semibold text-ink-900">¿Te interesa {pet.name}?</p>
                     <p className="mt-1 flex items-start gap-1.5 text-sm leading-snug text-ink-500">
                       <LockIcon size={15} className="mt-0.5 shrink-0 text-sage-600" />
-                      Escribile a su familia por el buzón anónimo. Tu email nunca se comparte.
+                      Presentate con una carta: la familia la lee y te responde por el chat de {SITE.name}.
                     </p>
                   </div>
-                  <ContactFamilyButton petId={pet.id} petName={pet.name} state={contactState} />
+                  <AdoptionRequestButton petId={pet.id} petName={pet.name} state={adoptionCta} />
                 </div>
               ) : null}
               {isActive ? <SharePanel pet={sharePet} canonicalUrl={canonicalUrl} /> : null}
@@ -282,12 +282,12 @@ export function PetDetail({ pet, status: petStatus, isOwner, contactState }: Pet
           pet={sharePet}
           canonicalUrl={canonicalUrl}
           primaryAction={
-            <ContactFamilyButton petId={pet.id} petName={pet.name} state={contactState} variant="bar" />
+            <AdoptionRequestButton petId={pet.id} petName={pet.name} state={adoptionCta} variant="bar" />
           }
         />
-      ) : !isAdopted || contactState.kind === 'existing' ? (
+      ) : !isAdopted || adoptionCta.kind === 'requested' ? (
         <div className="fixed inset-x-0 bottom-0 z-30 border-t border-cream-300 bg-cream-50/85 px-4 pb-[max(0.875rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
-          <ContactFamilyButton petId={pet.id} petName={pet.name} state={contactState} variant="bar" />
+          <AdoptionRequestButton petId={pet.id} petName={pet.name} state={adoptionCta} variant="bar" />
         </div>
       ) : null}
     </>

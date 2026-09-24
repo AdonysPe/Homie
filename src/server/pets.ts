@@ -6,7 +6,7 @@ import { cache } from 'react';
 import type { ListingStatus, PetListing, PetStatus } from '@/types/pet';
 import { getDb, schema, type Database } from './db';
 
-const { pets, user, conversations, messages } = schema;
+const { pets, user, adoptionRequests, messages } = schema;
 
 /**
  * Columnas PÚBLICAS de una mascota. Es la única proyección que se usa para
@@ -37,7 +37,7 @@ const publicColumns = {
   status: pets.status,
   publishedAt: pets.publishedAt,
   ownerVerified: user.emailVerified,
-  interestedCount: sql<number>`(select count(*)::int from ${conversations} where ${conversations.petId} = ${pets.id})`,
+  interestedCount: sql<number>`(select count(*)::int from ${adoptionRequests} where ${adoptionRequests.petId} = ${pets.id})`,
 };
 
 const selectPublicPets = (db: Database) =>
@@ -125,7 +125,9 @@ export async function listOwnerPets(ownerId: string): Promise<OwnerPet[]> {
   const rows = await db
     .select({
       ...publicColumns,
-      unreadCount: sql<number>`(select count(*)::int from ${messages} where ${messages.petId} = ${pets.id} and ${messages.receiverId} = ${ownerId} and ${messages.isRead} = false)`,
+      // Solicitudes sin abrir + mensajes sin leer, de esta mascota.
+      unreadCount: sql<number>`(select count(*)::int from ${adoptionRequests} where ${adoptionRequests.petId} = ${pets.id} and ${adoptionRequests.isReadByOwner} = false)
+        + (select count(*)::int from ${messages} inner join ${adoptionRequests} on ${adoptionRequests.id} = ${messages.requestId} where ${adoptionRequests.petId} = ${pets.id} and ${messages.receiverId} = ${ownerId} and ${messages.isRead} = false)`,
       pendingReports: sql<number>`(select count(*)::int from ${schema.reports} where ${schema.reports.petId} = ${pets.id} and ${schema.reports.status} = 'pendiente')`,
     })
     .from(pets)

@@ -10,7 +10,8 @@ import { Spinner } from '@/components/ui/Spinner';
 import { toast } from '@/components/ui/Toast';
 import { cn } from '@/lib/cn';
 import { formatMessageTime, formatShortDate } from '@/lib/format';
-import { markConversationRead, sendReply, shareContact } from '@/server/actions/messages';
+import { homeTypeLabel, REQUEST_STATUS_LABELS } from '@/features/adoption/lib/adoption-options';
+import { markRequestRead, sendReply, shareContact } from '@/server/actions/messages';
 import type { Thread, ThreadMessage } from '@/server/messages';
 import { MESSAGE_MAX } from '../lib/message-schema';
 
@@ -27,7 +28,7 @@ export function ThreadView({ thread, hasUnread }: { thread: Thread; hasUnread: b
   // Al abrir el hilo, lo recibido se marca como leído (y se actualiza el contador del header).
   useEffect(() => {
     if (!hasUnread) return;
-    void markConversationRead(thread.id).then(() => router.refresh());
+    void markRequestRead(thread.id).then(() => router.refresh());
   }, [hasUnread, router, thread.id]);
 
   // Siempre mostrar lo último, como en cualquier app de mensajes.
@@ -38,6 +39,8 @@ export function ThreadView({ thread, hasUnread }: { thread: Thread; hasUnread: b
   return (
     <div className="flex flex-col gap-6">
       <PrivacyBanner thread={thread} />
+
+      <RequestCard thread={thread} />
 
       <ol className="flex flex-col gap-2" aria-label={`Conversación con ${thread.counterpart}`}>
         {messages.map((message, index) => {
@@ -73,7 +76,7 @@ export function ThreadView({ thread, hasUnread }: { thread: Thread; hasUnread: b
       <div ref={listEndRef} />
 
       <Composer
-        conversationId={thread.id}
+        requestId={thread.id}
         onOptimisticSend={(content) =>
           addOptimistic({
             id: `pending-${Date.now()}`,
@@ -104,7 +107,7 @@ function PrivacyBanner({ thread }: { thread: Thread }) {
     return (
       <p className="flex items-start gap-2 rounded-card bg-cream-200/70 p-3.5 text-sm text-ink-500">
         <LockIcon size={17} className="mt-px shrink-0 text-sage-600" />
-        La familia ve solo el nombre que elegiste. Cuando lo decida, va a compartir su contacto acá.
+        La familia está leyendo tu carta. Cuando lo decida, va a compartir su contacto acá.
       </p>
     );
   }
@@ -131,6 +134,32 @@ function PrivacyBanner({ thread }: { thread: Thread }) {
         <p className="text-xs text-sage-800">Número de microchip: {microchipNumber}</p>
       ) : null}
     </div>
+  );
+}
+
+/** La carta de presentación: el punto de partida de toda la conversación. */
+function RequestCard({ thread }: { thread: Thread }) {
+  const { request } = thread;
+  const isOwner = thread.role === 'owner';
+
+  return (
+    <article className="flex flex-col gap-3 rounded-panel border border-cream-300 bg-white p-5 shadow-soft">
+      <header className="flex flex-wrap items-baseline justify-between gap-2">
+        <p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-400">
+          {isOwner ? 'Carta de presentación' : 'Tu carta de presentación'}
+        </p>
+        <span className="text-xs text-ink-400">
+          {formatShortDate(request.createdAt)} · {REQUEST_STATUS_LABELS[request.status]}
+        </span>
+      </header>
+      <div>
+        <p className="text-lg font-semibold tracking-[-0.01em] text-ink-900">{request.adopterName}</p>
+        <p className="text-sm text-ink-500">
+          {request.adopterCity} · {homeTypeLabel(request.homeType)}
+        </p>
+      </div>
+      <p className="whitespace-pre-wrap text-[0.95rem] leading-relaxed text-ink-700">{request.message}</p>
+    </article>
   );
 }
 
@@ -182,10 +211,10 @@ function ShareContactCard({ thread }: { thread: Thread }) {
 }
 
 function Composer({
-  conversationId,
+  requestId,
   onOptimisticSend,
 }: {
-  conversationId: string;
+  requestId: string;
   onOptimisticSend: (content: string) => void;
 }) {
   const router = useRouter();
@@ -199,7 +228,7 @@ function Composer({
     setContent('');
     startTransition(async () => {
       onOptimisticSend(trimmed);
-      const result = await sendReply({ conversationId, content: trimmed });
+      const result = await sendReply({ requestId, content: trimmed });
       if (!result.ok) {
         setContent(draft);
         toast.error(result.error);

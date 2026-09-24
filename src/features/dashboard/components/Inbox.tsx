@@ -2,6 +2,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 
 import { ChevronDownIcon, LockIcon } from '@/components/icons';
+import { homeTypeLabel, REQUEST_STATUS_LABELS } from '@/features/adoption/lib/adoption-options';
 import { cn } from '@/lib/cn';
 import { formatInboxDate } from '@/lib/format';
 import type { InboxGroup } from '@/server/messages';
@@ -15,8 +16,8 @@ export function Inbox({ groups }: { groups: InboxGroup[] }) {
   if (groups.length === 0) {
     return (
       <EmptyState
-        title="No hay mensajes todavía"
-        body="Cuando alguien se interese por tu mascota, su mensaje va a aparecer acá. Tu email y tu teléfono siguen ocultos."
+        title="No hay solicitudes todavía"
+        body="Cuando alguien se postule para adoptar a tu mascota, su carta de presentación va a aparecer acá. Tu email y tu teléfono siguen ocultos."
       />
     );
   }
@@ -27,13 +28,13 @@ export function Inbox({ groups }: { groups: InboxGroup[] }) {
   return (
     <div className="flex flex-col gap-10">
       {received.length > 0 ? (
-        <InboxSection title="Mensajes recibidos" groups={received} />
+        <InboxSection title="Solicitudes recibidas" groups={received} />
       ) : null}
-      {sent.length > 0 ? <InboxSection title="Tus consultas a otras familias" groups={sent} /> : null}
+      {sent.length > 0 ? <InboxSection title="Tus postulaciones" groups={sent} /> : null}
 
       <p className="flex items-center justify-center gap-1.5 text-xs text-ink-400">
         <LockIcon size={13} />
-        Nadie ve tu email. Tu contacto se comparte solo si vos lo decidís en cada conversación.
+        Tu email nunca se muestra. Tu teléfono se comparte solo si vos lo decidís en cada solicitud.
       </p>
     </div>
   );
@@ -67,12 +68,12 @@ function InboxSection({ title, groups }: { title: string; groups: InboxGroup[] }
           </div>
 
           <ul className="divide-y divide-cream-300">
-            {group.conversations.map((conversation) => {
-              const isUnread = conversation.unreadCount > 0;
+            {group.requests.map((request) => {
+              const isUnread = request.unread;
               return (
-                <li key={conversation.id}>
+                <li key={request.id}>
                   <Link
-                    href={`/dashboard/mensajes/${conversation.id}`}
+                    href={`/dashboard/mensajes/${request.id}`}
                     className="group flex items-start gap-3 px-4 py-3.5 transition-colors hover:bg-cream-50 focus-visible:ring-inset focus-visible:ring-offset-0"
                   >
                     <span
@@ -82,16 +83,22 @@ function InboxSection({ title, groups }: { title: string; groups: InboxGroup[] }
                     <span className="flex min-w-0 flex-1 flex-col gap-0.5">
                       <span className="flex items-baseline justify-between gap-3">
                         <span className={cn('truncate text-[0.95rem] text-ink-900', isUnread ? 'font-semibold' : 'font-medium')}>
-                          {conversation.counterpart}
+                          {request.counterpart}
                           {isUnread ? <span className="sr-only"> (no leído)</span> : null}
                         </span>
-                        <time dateTime={conversation.lastMessageAt} className="shrink-0 text-xs text-ink-400">
-                          {formatInboxDate(conversation.lastMessageAt)}
+                        <time dateTime={request.lastActivityAt} className="shrink-0 text-xs text-ink-400">
+                          {formatInboxDate(request.lastActivityAt)}
                         </time>
                       </span>
+                      <span className="text-xs text-ink-400">
+                        {request.role === 'owner'
+                          ? `${request.adopterCity} · ${homeTypeLabel(request.homeType)} · `
+                          : ''}
+                        {REQUEST_STATUS_LABELS[request.status]}
+                      </span>
                       <span className={cn('line-clamp-2 text-sm leading-snug', isUnread ? 'text-ink-700' : 'text-ink-400')}>
-                        {conversation.lastMessageIsMine ? 'Vos: ' : ''}
-                        {conversation.lastMessage}
+                        {request.previewIsMine ? 'Vos: ' : ''}
+                        {request.preview}
                       </span>
                     </span>
                     <ChevronDownIcon

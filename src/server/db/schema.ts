@@ -18,6 +18,7 @@ import type {
   PetStatus,
   RehomingReason,
 } from '@/types/pet';
+import type { HomeType, RequestStatus } from '@/features/adoption/lib/adoption-options';
 import type { ReportReason, ReportStatus } from '@/features/reports/lib/report-reasons';
 
 /* ------------------------------------------------------------------
@@ -31,6 +32,8 @@ export const user = pgTable('user', {
   email: text('email').notNull().unique(),
   emailVerified: boolean('email_verified').notNull().default(false),
   image: text('image'),
+  /** PRIVADO y opcional: nunca se muestra; solo se usa si la persona decide compartirlo. */
+  phone: text('phone'),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -161,45 +164,55 @@ export const petPhotos = pgTable(
 );
 
 /**
- * Un hilo por mascota e interesado. Guarda el alias que eligió quien adopta
- * y si la familia ya decidió compartir su contacto.
+ * Carta de presentación de quien quiere adoptar.
+ *
+ * Privacidad asimétrica: el adoptante se presenta con datos reales (nombre,
+ * ciudad, tipo de hogar) para generar confianza; el dador sigue protegido y
+ * decide si responde, acepta o comparte su contacto.
  */
-export const conversations = pgTable(
-  'conversations',
+export const adoptionRequests = pgTable(
+  'adoption_requests',
   {
     id: text('id').primaryKey(),
     petId: text('pet_id')
       .notNull()
       .references(() => pets.id, { onDelete: 'cascade' }),
+    /** Dueño de la mascota al momento de la solicitud (evita un join en cada bandeja). */
     ownerId: text('owner_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
     adopterId: text('adopter_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    /** Nombre que el interesado eligió mostrar. Nunca su email. */
-    adopterAlias: text('adopter_alias').notNull(),
+    adopterName: text('adopter_name').notNull(),
+    adopterCity: text('adopter_city').notNull(),
+    homeType: text('home_type').$type<HomeType>().notNull(),
+    message: text('message').notNull(),
+    status: text('status').$type<RequestStatus>().notNull().default('pendiente'),
+    /** Cuándo el dador decidió revelar su contacto en este hilo (null = nunca). */
     contactSharedAt: timestamp('contact_shared_at', { withTimezone: true }),
+    /** La carta cuenta como no leída hasta que el dador abre la solicitud. */
+    isReadByOwner: boolean('is_read_by_owner').notNull().default(false),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
-    lastMessageAt: timestamp('last_message_at', { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+    lastActivityAt: timestamp('last_activity_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    uniqueIndex('conversations_pet_adopter_idx').on(table.petId, table.adopterId),
-    index('conversations_owner_idx').on(table.ownerId),
-    index('conversations_adopter_idx').on(table.adopterId),
+    // Una postulación por persona y mascota.
+    uniqueIndex('adoption_requests_pet_adopter_idx').on(table.petId, table.adopterId),
+    index('adoption_requests_owner_idx').on(table.ownerId, table.lastActivityAt),
+    index('adoption_requests_adopter_idx').on(table.adopterId, table.lastActivityAt),
   ],
 );
 
+/** Chat interno posterior a la solicitud. */
 export const messages = pgTable(
   'messages',
   {
     id: text('id').primaryKey(),
-    conversationId: text('conversation_id')
+    requestId: text('request_id')
       .notNull()
-      .references(() => conversations.id, { onDelete: 'cascade' }),
-    petId: text('pet_id')
-      .notNull()
-      .references(() => pets.id, { onDelete: 'cascade' }),
+      .references(() => adoptionRequests.id, { onDelete: 'cascade' }),
     senderId: text('sender_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
@@ -211,10 +224,29 @@ export const messages = pgTable(
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
-    index('messages_conversation_idx').on(table.conversationId, table.createdAt),
+    index('messages_request_idx').on(table.requestId, table.createdAt),
     index('messages_receiver_unread_idx').on(table.receiverId, table.isRead),
     index('messages_sender_created_idx').on(table.senderId, table.createdAt),
   ],
+);
+
+/** Prueba social: la mascota ya en su hogar nuevo, contada por su familia. */
+export const successStories = pgTable(
+  'success_stories',
+  {
+    id: text('id').primaryKey(),
+    petId: text('pet_id')
+      .notNull()
+      .unique()
+      .references(() => pets.id, { onDelete: 'cascade' }),
+    /** Opcional: la adopción pudo cerrarse fuera de la plataforma. */
+    adopterId: text('adopter_id').references(() => user.id, { onDelete: 'set null' }),
+    photo: text('photo').notNull(),
+    photoAlt: text('photo_alt').notNull(),
+    testimonial: text('testimonial').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('success_stories_adopter_idx').on(table.adopterId)],
 );
 
 export const reports = pgTable(

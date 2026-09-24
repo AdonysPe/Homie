@@ -1,83 +1,110 @@
 import 'server-only';
 
-import { and, asc, desc, eq, or, sql } from 'drizzle-orm';
+import { and, asc, count, desc, eq, or, sql } from 'drizzle-orm';
 
+import type { HomeType, RequestStatus } from '@/features/adoption/lib/adoption-options';
 import { getDb, schema } from './db';
 
-const { conversations, messages, pets } = schema;
+const { adoptionRequests, messages, pets } = schema;
 
-export type ConversationRole = 'owner' | 'adopter';
+export type RequestRole = 'owner' | 'adopter';
 
 /**
- * Cómo se ve cada parte. Es la ÚNICA fuente de nombres en la mensajería:
- * nunca se consulta `user.email` ni `user.name` del otro participante.
+ * Privacidad asimétrica: el adoptante se presenta con su nombre real;
+ * la familia que da en adopción se muestra como "Familia de …" y su
+ * email o teléfono nunca se consultan acá.
  */
-export const displayName = {
-  adopter: (alias: string) => alias || 'Usuario Homie',
-  owner: (petName: string) => `Familia de ${petName}`,
-};
+export const ownerDisplayName = (petName: string) => `Familia de ${petName}`;
 
-export async function findConversationId(petId: string, adopterId: string): Promise<string | null> {
+export async function findRequestId(petId: string, adopterId: string): Promise<string | null> {
   const db = await getDb();
   const [row] = await db
-    .select({ id: conversations.id })
-    .from(conversations)
-    .where(and(eq(conversations.petId, petId), eq(conversations.adopterId, adopterId)))
+    .select({ id: adoptionRequests.id })
+    .from(adoptionRequests)
+    .where(and(eq(adoptionRequests.petId, petId), eq(adoptionRequests.adopterId, adopterId)))
     .limit(1);
   return row?.id ?? null;
 }
 
-export interface InboxConversation {
+/** Mensajes sin leer + cartas nuevas sin abrir (para el badge del header). */
+export async function countUnread(userId: string): Promise<number> {
+  const db = await getDb();
+  const [[unreadMessages], [unopenedRequests]] = await Promise.all([
+    db
+      .select({ value: count() })
+      .from(messages)
+      .where(and(eq(messages.receiverId, userId), eq(messages.isRead, false))),
+    db
+      .select({ value: count() })
+      .from(adoptionRequests)
+      .where(and(eq(adoptionRequests.ownerId, userId), eq(adoptionRequests.isReadByOwner, false))),
+  ]);
+  return (unreadMessages?.value ?? 0) + (unopenedRequests?.value ?? 0);
+}
+
+export interface InboxRequest {
   id: string;
-  role: ConversationRole;
-  /** Nombre visible de la otra parte (alias o "Familia de …"). */
+  role: RequestRole;
+  /** Nombre visible de la otra parte. */
   counterpart: string;
-  lastMessage: string;
-  lastMessageAt: string;
-  lastMessageIsMine: boolean;
-  unreadCount: number;
-  contactShared: boolean;
+  adopterCity: string;
+  homeType: HomeType;
+  status: RequestStatus;
+  /** Último mensaje del chat, o la carta si todavía no hay chat. */
+  preview: string;
+  previewIsMine: boolean;
+  lastActivityAt: string;
+  unread: boolean;
 }
 
 export interface InboxGroup {
   pet: { id: string; slug: string; name: string; photoUrl: string | null; photoAlt: string };
-  role: ConversationRole;
-  conversations: InboxConversation[];
+  role: RequestRole;
+  requests: InboxRequest[];
   unreadCount: number;
 }
 
 /**
- * Bandeja agrupada por mascota. Primero las mascotas propias (mensajes recibidos),
- * después las consultas que el usuario hizo a otras familias.
+ * Bandeja agrupada por mascota: primero las solicitudes recibidas por mis
+ * mascotas, después mis propias postulaciones.
  */
 export async function listInbox(userId: string): Promise<InboxGroup[]> {
   const db = await getDb();
+  const lastMessage = (column: typeof messages.content | typeof messages.senderId) =>
+    sql<string | null>`(select ${column} from ${messages} where ${messages.requestId} = ${adoptionRequests.id} order by ${messages.createdAt} desc limit 1)`;
+
   const rows = await db
     .select({
-      id: conversations.id,
-      ownerId: conversations.ownerId,
-      adopterAlias: conversations.adopterAlias,
-      contactSharedAt: conversations.contactSharedAt,
-      lastMessageAt: conversations.lastMessageAt,
+      id: adoptionRequests.id,
+      ownerId: adoptionRequests.ownerId,
+      adopterId: adoptionRequests.adopterId,
+      adopterName: adoptionRequests.adopterName,
+      adopterCity: adoptionRequests.adopterCity,
+      homeType: adoptionRequests.homeType,
+      message: adoptionRequests.message,
+      status: adoptionRequests.status,
+      isReadByOwner: adoptionRequests.isReadByOwner,
+      lastActivityAt: adoptionRequests.lastActivityAt,
       petId: pets.id,
       petSlug: pets.slug,
       petName: pets.name,
       petPhotos: pets.photos,
-      lastMessage: sql<string>`(select ${messages.content} from ${messages} where ${messages.conversationId} = ${conversations.id} order by ${messages.createdAt} desc limit 1)`,
-      lastSenderId: sql<string>`(select ${messages.senderId} from ${messages} where ${messages.conversationId} = ${conversations.id} order by ${messages.createdAt} desc limit 1)`,
-      unreadCount: sql<number>`(select count(*)::int from ${messages} where ${messages.conversationId} = ${conversations.id} and ${messages.receiverId} = ${userId} and ${messages.isRead} = false)`,
+      lastMessage: lastMessage(messages.content),
+      lastSenderId: lastMessage(messages.senderId),
+      unreadMessages: sql<number>`(select count(*)::int from ${messages} where ${messages.requestId} = ${adoptionRequests.id} and ${messages.receiverId} = ${userId} and ${messages.isRead} = false)`,
     })
-    .from(conversations)
-    .innerJoin(pets, eq(pets.id, conversations.petId))
-    .where(or(eq(conversations.ownerId, userId), eq(conversations.adopterId, userId)))
-    .orderBy(desc(conversations.lastMessageAt));
+    .from(adoptionRequests)
+    .innerJoin(pets, eq(pets.id, adoptionRequests.petId))
+    .where(or(eq(adoptionRequests.ownerId, userId), eq(adoptionRequests.adopterId, userId)))
+    .orderBy(desc(adoptionRequests.lastActivityAt));
 
   const groups = new Map<string, InboxGroup>();
 
   for (const row of rows) {
-    const role: ConversationRole = row.ownerId === userId ? 'owner' : 'adopter';
+    const role: RequestRole = row.ownerId === userId ? 'owner' : 'adopter';
     const key = `${role}:${row.petId}`;
     const [photo] = row.petPhotos;
+    const unread = row.unreadMessages > 0 || (role === 'owner' && !row.isReadByOwner);
 
     let group = groups.get(key);
     if (!group) {
@@ -90,36 +117,29 @@ export async function listInbox(userId: string): Promise<InboxGroup[]> {
           photoAlt: photo?.alt ?? row.petName,
         },
         role,
-        conversations: [],
+        requests: [],
         unreadCount: 0,
       };
       groups.set(key, group);
     }
 
-    group.unreadCount += row.unreadCount;
-    group.conversations.push({
+    if (unread) group.unreadCount += 1;
+    group.requests.push({
       id: row.id,
       role,
-      counterpart: role === 'owner' ? displayName.adopter(row.adopterAlias) : displayName.owner(row.petName),
-      lastMessage: row.lastMessage ?? '',
-      lastMessageAt: row.lastMessageAt.toISOString(),
-      lastMessageIsMine: row.lastSenderId === userId,
-      unreadCount: row.unreadCount,
-      contactShared: Boolean(row.contactSharedAt),
+      counterpart: role === 'owner' ? row.adopterName : ownerDisplayName(row.petName),
+      adopterCity: row.adopterCity,
+      homeType: row.homeType,
+      status: row.status,
+      preview: row.lastMessage ?? row.message,
+      previewIsMine: row.lastMessage ? row.lastSenderId === userId : role === 'adopter',
+      lastActivityAt: row.lastActivityAt.toISOString(),
+      unread,
     });
   }
 
   const all = [...groups.values()];
   return [...all.filter((group) => group.role === 'owner'), ...all.filter((group) => group.role === 'adopter')];
-}
-
-export async function countUnread(userId: string): Promise<number> {
-  const db = await getDb();
-  const [row] = await db
-    .select({ value: sql<number>`count(*)::int` })
-    .from(messages)
-    .where(and(eq(messages.receiverId, userId), eq(messages.isRead, false)));
-  return row?.value ?? 0;
 }
 
 export interface ThreadMessage {
@@ -131,11 +151,21 @@ export interface ThreadMessage {
 
 export interface Thread {
   id: string;
-  role: ConversationRole;
+  role: RequestRole;
   counterpart: string;
   pet: { slug: string; name: string; photoUrl: string | null; photoAlt: string };
+  /** La carta de presentación, siempre visible arriba del chat. */
+  request: {
+    adopterId: string;
+    adopterName: string;
+    adopterCity: string;
+    homeType: HomeType;
+    message: string;
+    status: RequestStatus;
+    createdAt: string;
+  };
   contactSharedAt: string | null;
-  /** Solo presente para quien adopta, y solo después de que la familia decidió compartirlo. */
+  /** Solo para quien adopta, y solo después de que la familia decidió compartirlo. */
   sharedContact: {
     ownerName: string;
     method: 'whatsapp' | 'email';
@@ -143,20 +173,26 @@ export interface Thread {
     microchipNumber: string | null;
   } | null;
   messages: ThreadMessage[];
-  /** Hay mensajes recibidos sin leer (para marcarlos al abrir). */
+  /** Hay algo sin leer para quien mira (mensajes o la carta nueva). */
   hasUnread: boolean;
 }
 
 /** Devuelve el hilo solo si `userId` participa (si no, `null`: se trata como inexistente). */
-export async function getThread(conversationId: string, userId: string): Promise<Thread | null> {
+export async function getThread(requestId: string, userId: string): Promise<Thread | null> {
   const db = await getDb();
-  const [conversation] = await db
+  const [request] = await db
     .select({
-      id: conversations.id,
-      ownerId: conversations.ownerId,
-      adopterId: conversations.adopterId,
-      adopterAlias: conversations.adopterAlias,
-      contactSharedAt: conversations.contactSharedAt,
+      id: adoptionRequests.id,
+      ownerId: adoptionRequests.ownerId,
+      adopterId: adoptionRequests.adopterId,
+      adopterName: adoptionRequests.adopterName,
+      adopterCity: adoptionRequests.adopterCity,
+      homeType: adoptionRequests.homeType,
+      message: adoptionRequests.message,
+      status: adoptionRequests.status,
+      isReadByOwner: adoptionRequests.isReadByOwner,
+      contactSharedAt: adoptionRequests.contactSharedAt,
+      createdAt: adoptionRequests.createdAt,
       petSlug: pets.slug,
       petName: pets.name,
       petPhotos: pets.photos,
@@ -165,19 +201,19 @@ export async function getThread(conversationId: string, userId: string): Promise
       contactValue: pets.contactValue,
       microchipNumber: pets.microchipNumber,
     })
-    .from(conversations)
-    .innerJoin(pets, eq(pets.id, conversations.petId))
+    .from(adoptionRequests)
+    .innerJoin(pets, eq(pets.id, adoptionRequests.petId))
     .where(
       and(
-        eq(conversations.id, conversationId),
-        or(eq(conversations.ownerId, userId), eq(conversations.adopterId, userId)),
+        eq(adoptionRequests.id, requestId),
+        or(eq(adoptionRequests.ownerId, userId), eq(adoptionRequests.adopterId, userId)),
       ),
     )
     .limit(1);
 
-  if (!conversation) return null;
+  if (!request) return null;
 
-  const role: ConversationRole = conversation.ownerId === userId ? 'owner' : 'adopter';
+  const role: RequestRole = request.ownerId === userId ? 'owner' : 'adopter';
   const rows = await db
     .select({
       id: messages.id,
@@ -187,32 +223,38 @@ export async function getThread(conversationId: string, userId: string): Promise
       isUnreadForMe: sql<boolean>`${messages.receiverId} = ${userId} and ${messages.isRead} = false`,
     })
     .from(messages)
-    .where(eq(messages.conversationId, conversationId))
+    .where(eq(messages.requestId, requestId))
     .orderBy(asc(messages.createdAt));
 
-  const [photo] = conversation.petPhotos;
-  const canSeeContact = role === 'adopter' && conversation.contactSharedAt !== null;
+  const [photo] = request.petPhotos;
+  const canSeeContact = role === 'adopter' && request.contactSharedAt !== null;
 
   return {
-    id: conversation.id,
+    id: request.id,
     role,
-    counterpart:
-      role === 'owner'
-        ? displayName.adopter(conversation.adopterAlias)
-        : displayName.owner(conversation.petName),
+    counterpart: role === 'owner' ? request.adopterName : ownerDisplayName(request.petName),
     pet: {
-      slug: conversation.petSlug,
-      name: conversation.petName,
+      slug: request.petSlug,
+      name: request.petName,
       photoUrl: photo?.url ?? null,
-      photoAlt: photo?.alt ?? conversation.petName,
+      photoAlt: photo?.alt ?? request.petName,
     },
-    contactSharedAt: conversation.contactSharedAt?.toISOString() ?? null,
+    request: {
+      adopterId: request.adopterId,
+      adopterName: request.adopterName,
+      adopterCity: request.adopterCity,
+      homeType: request.homeType,
+      message: request.message,
+      status: request.status,
+      createdAt: request.createdAt.toISOString(),
+    },
+    contactSharedAt: request.contactSharedAt?.toISOString() ?? null,
     sharedContact: canSeeContact
       ? {
-          ownerName: conversation.ownerName,
-          method: conversation.contactMethod,
-          value: conversation.contactValue,
-          microchipNumber: conversation.microchipNumber,
+          ownerName: request.ownerName,
+          method: request.contactMethod,
+          value: request.contactValue,
+          microchipNumber: request.microchipNumber,
         }
       : null,
     messages: rows.map((row) => ({
@@ -221,6 +263,6 @@ export async function getThread(conversationId: string, userId: string): Promise
       createdAt: row.createdAt.toISOString(),
       isMine: row.senderId === userId,
     })),
-    hasUnread: rows.some((row) => row.isUnreadForMe),
+    hasUnread: rows.some((row) => row.isUnreadForMe) || (role === 'owner' && !request.isReadByOwner),
   };
 }
