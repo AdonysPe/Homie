@@ -1,15 +1,23 @@
 import { z } from 'zod';
 
-import { PET_SEXES, PET_SIZES, PET_SPECIES, REHOMING_REASONS } from '@/types/pet';
+import { speciesHasSize } from '@/lib/pet-catalog';
+import { IDEAL_HOMES, PET_SEXES, PET_SIZES, PET_SPECIES, REHOMING_REASONS } from '@/types/pet';
 import type { PetPhoto } from '../types';
 
-export const MAX_PHOTOS = 6;
+export const MAX_PHOTOS = 5;
 export const MAX_PHOTO_SIZE_MB = 8;
+export const SPECIAL_NEEDS_MAX = 200;
 
 const photoSchema = z.custom<PetPhoto>(
   (value) => typeof value === 'object' && value !== null && 'previewUrl' in value,
   { error: 'Foto inválida' },
 );
+
+/**
+ * Las reglas que cruzan campos corren siempre (`when`), aunque otros pasos
+ * todavía estén incompletos: así cada paso valida lo suyo al avanzar.
+ */
+const always = () => true;
 
 export const publishSchema = z
   .object({
@@ -25,10 +33,20 @@ export const publishSchema = z
       .min(0, 'La edad no puede ser negativa')
       .max(40, 'Revisá la edad'),
     ageUnit: z.enum(['meses', 'anos']),
-    size: z.enum(PET_SIZES, { error: 'Elegí un tamaño' }),
-    sex: z.enum(PET_SEXES, { error: 'Elegí una opción' }),
+    sex: z.enum(PET_SEXES, { error: 'Elegí macho o hembra' }),
+    size: z.enum(PET_SIZES).optional(),
+
     isSterilized: z.boolean(),
     isVaccinated: z.boolean(),
+    isDewormed: z.boolean(),
+    hasMicrochip: z.boolean(),
+    microchipNumber: z.string().trim().optional(),
+    specialNeeds: z
+      .string()
+      .trim()
+      .max(SPECIAL_NEEDS_MAX, `Máximo ${SPECIAL_NEEDS_MAX} caracteres`)
+      .optional(),
+    idealHome: z.enum(IDEAL_HOMES, { error: 'Elegí el entorno ideal' }),
     goodWithKids: z.boolean(),
     goodWithPets: z.boolean(),
 
@@ -45,29 +63,46 @@ export const publishSchema = z
     contactValue: z.string().trim().min(1, 'Necesitamos un contacto'),
     acceptsFollowUp: z
       .boolean()
-      .refine((value) => value, 'Necesitamos tu permiso para contactarte'),
+      .refine((value) => value, 'Necesitamos tu permiso para avisarte de cada interesado'),
+    acceptsTerms: z
+      .boolean()
+      .refine((value) => value, 'Para publicar tenés que aceptar los Términos y la Política de Privacidad'),
   })
-  .superRefine((values, ctx) => {
-    if (values.contactMethod === 'email') {
-      const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(values.contactValue);
-      if (!isEmail) {
-        ctx.addIssue({
-          code: 'custom',
-          path: ['contactValue'],
-          message: 'Revisá el email (ej. nombre@correo.com)',
-        });
-      }
-      return;
-    }
-
-    const digits = values.contactValue.replace(/\D/g, '');
-    if (digits.length < 8 || digits.length > 15) {
-      ctx.addIssue({
-        code: 'custom',
-        path: ['contactValue'],
-        message: 'Revisá el número de WhatsApp (8 a 15 dígitos)',
-      });
-    }
-  });
+  .refine((values) => !values.species || !speciesHasSize(values.species) || Boolean(values.size), {
+    path: ['size'],
+    message: 'Elegí un tamaño',
+    when: always,
+  })
+  .refine(
+    (values) => {
+      if (!values.hasMicrochip || !values.microchipNumber) return true;
+      const digits = values.microchipNumber.replace(/\s/g, '');
+      return /^\d{9,15}$/.test(digits);
+    },
+    {
+      path: ['microchipNumber'],
+      message: 'El número de microchip tiene entre 9 y 15 dígitos',
+      when: always,
+    },
+  )
+  .refine(
+    (values) =>
+      values.contactMethod !== 'email' ||
+      !values.contactValue ||
+      /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(values.contactValue.trim()),
+    { path: ['contactValue'], message: 'Revisá el email (ej. nombre@correo.com)', when: always },
+  )
+  .refine(
+    (values) => {
+      if (values.contactMethod !== 'whatsapp' || !values.contactValue) return true;
+      const digits = values.contactValue.replace(/\D/g, '');
+      return digits.length >= 8 && digits.length <= 15;
+    },
+    {
+      path: ['contactValue'],
+      message: 'Revisá el número de WhatsApp (8 a 15 dígitos)',
+      when: always,
+    },
+  );
 
 export type PublishSchema = z.infer<typeof publishSchema>;

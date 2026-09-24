@@ -109,3 +109,65 @@ export const ClockIcon = (props: LineIconProps) => (
     <path d="M12 7.4V12l3 1.8" />
   </LineIcon>
 );
+
+export const SyringeIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <path d="m17.5 3.5 3 3M19 5l-3.2 3.2M15.8 8.2l-8.9 8.9-2.8.4.4-2.8 8.9-8.9M12.2 6l5.8 5.8M9.6 10.8l1.4 1.4M7.6 12.8l1.4 1.4M3.5 20.5l2-2" />
+  </LineIcon>
+);
+
+export const PillIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <rect x="2.9" y="8.6" width="18.2" height="6.8" rx="3.4" transform="rotate(-45 12 12)" />
+    <path d="m9.6 9.6 4.8 4.8" />
+  </LineIcon>
+);
+
+export const HeartPulseIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <path d="M12 20s-7.6-4.6-7.6-10.2A4.3 4.3 0 0 1 12 7.3a4.3 4.3 0 0 1 7.6 2.5C19.6 15.4 12 20 12 20Z" />
+    <path d="M7.4 12.4h2.3l1.3-2 2 4 1.3-2h2.3" />
+  </LineIcon>
+);
+
+export const ChipIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <rect x="6.5" y="6.5" width="11" height="11" rx="2.2" />
+    <rect x="9.6" y="9.6" width="4.8" height="4.8" rx="0.8" />
+    <path d="M9.5 3.5v3M14.5 3.5v3M9.5 17.5v3M14.5 17.5v3M3.5 9.5h3M3.5 14.5h3M17.5 9.5h3M17.5 14.5h3" />
+  </LineIcon>
+);
+
+export const LinkIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <path d="M10.2 13.8a3.6 3.6 0 0 0 5.1 0l3.1-3.1a3.6 3.6 0 0 0-5.1-5.1l-1.2 1.2" />
+    <path d="M13.8 10.2a3.6 3.6 0 0 0-5.1 0l-3.1 3.1a3.6 3.6 0 0 0 5.1 5.1l1.2-1.2" />
+  </LineIcon>
+);
+
+export const ShareIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <path d="M12 3.5v11M8.2 7.2 12 3.5l3.8 3.7" />
+    <path d="M8.5 10.5H6.8a1.8 1.8 0 0 0-1.8 1.8v6.4a1.8 1.8 0 0 0 1.8 1.8h10.4a1.8 1.8 0 0 0 1.8-1.8v-6.4a1.8 1.8 0 0 0-1.8-1.8h-1.7" />
+  </LineIcon>
+);
+
+export const InfoIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <circle cx="12" cy="12" r="8.4" />
+    <path d="M12 11v5M12 8.1v.1" />
+  </LineIcon>
+);
+
+export const MinusIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <path d="M6.5 12h11" />
+  </LineIcon>
+);
+
+/** Glifo oficial de WhatsApp, relleno: se reconoce al instante incluso a 18 px. */
+export const WhatsAppIcon = ({ size = 24, ...props }: SVGProps<SVGSVGElement> & { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden focusable="false" {...props}>
+    <path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.6-.91-2.2-.24-.58-.49-.5-.67-.5h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.07-.13-.27-.2-.57-.35Zm-5.42 7.4h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.9-9.88a9.83 9.83 0 0 1 9.88 9.89c0 5.45-4.44 9.88-9.89 9.88Zm8.41-18.3A11.81 11.81 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.94L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.34 11.89-11.89 0-3.18-1.24-6.16-3.48-8.41Z" />
+  </svg>
+);

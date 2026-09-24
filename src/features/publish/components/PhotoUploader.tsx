@@ -7,7 +7,7 @@ import { CloseIcon, UploadIcon } from '@/components/icons';
 import { FieldError } from '@/components/ui/FieldError';
 import { cn } from '@/lib/cn';
 import { usePetPhotos } from '../hooks/usePetPhotos';
-import { MAX_PHOTOS } from '../lib/publish-schema';
+import { MAX_PHOTOS, MAX_PHOTO_SIZE_MB } from '../lib/publish-schema';
 import type { PetPhoto } from '../types';
 
 interface PhotoUploaderProps {
@@ -74,11 +74,13 @@ export function PhotoUploader({ photos, onChange, error, petName }: PhotoUploade
           <span className="text-sm font-semibold text-ink-900">
             {isFull ? 'Ya tenés todas las fotos' : 'Arrastrá o elegí sus fotos'}
           </span>
-          <span className="text-xs text-ink-400">JPG, PNG o WEBP · hasta 8 MB cada una</span>
+          <span className="text-xs text-ink-400">
+            Hasta {MAX_PHOTOS} fotos · JPG, PNG o WEBP · {MAX_PHOTO_SIZE_MB} MB cada una
+          </span>
         </label>
 
         {photos.length > 0 ? (
-          <ul className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-4">
+          <ul className="mt-4 grid grid-cols-3 gap-2 sm:grid-cols-5">
             <AnimatePresence initial={false}>
               {photos.map((photo, index) => (
                 <motion.li

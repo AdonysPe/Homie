@@ -1,4 +1,7 @@
+import Link from 'next/link';
+
 import { MapPinIcon } from '@/components/icons';
+import { SITE } from '@/lib/site';
 import { BrandMark } from './BrandMark';
 
 const SOCIAL_LINKS = [
@@ -8,17 +11,22 @@ const SOCIAL_LINKS = [
 ];
 
 const SECTION_LINKS = [
-  { label: 'Cómo funciona', href: '#como-funciona' },
-  { label: 'Publicar', href: '#publicar' },
-  { label: 'Mascotas', href: '#mascotas' },
-  { label: 'Preguntas', href: '#preguntas' },
+  { label: 'Cómo funciona', href: '/#como-funciona' },
+  { label: 'Publicar', href: '/#publicar' },
+  { label: 'Mascotas', href: '/#mascotas' },
+  { label: 'Preguntas', href: '/#preguntas' },
+];
+
+const LEGAL_LINKS = [
+  { label: 'Términos y condiciones', href: '/terminos' },
+  { label: 'Política de privacidad', href: '/privacidad' },
 ];
 
 export function SiteFooter() {
   return (
     // pb extra en mobile: la barra flotante de publicación no debe tapar el cierre.
     <footer className="border-t border-cream-300 bg-cream-100 pb-28 pt-12 sm:pb-12">
-      <div className="shell grid gap-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="shell grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
         <div className="flex flex-col gap-3">
           <BrandMark />
           <p className="max-w-[22rem] text-sm text-ink-500">
@@ -29,13 +37,26 @@ export function SiteFooter() {
         <nav aria-label="Secciones del sitio" className="flex flex-col gap-2">
           <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-ink-400">Secciones</h2>
           {SECTION_LINKS.map((link) => (
-            <a
+            <Link
               key={link.href}
               href={link.href}
               className="text-sm text-ink-700 transition-colors hover:text-clay-600"
             >
               {link.label}
-            </a>
+            </Link>
+          ))}
+        </nav>
+
+        <nav aria-label="Legales" className="flex flex-col gap-2">
+          <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-ink-400">Legales</h2>
+          {LEGAL_LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              className="text-sm text-ink-700 transition-colors hover:text-clay-600"
+            >
+              {link.label}
+            </Link>
           ))}
         </nav>
 
@@ -57,10 +78,10 @@ export function SiteFooter() {
         <div className="flex flex-col gap-2">
           <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-ink-400">Contacto</h2>
           <a
-            href="mailto:hola@homie.pet"
+            href={`mailto:${SITE.contactEmail}`}
             className="text-sm text-ink-700 transition-colors hover:text-clay-600"
           >
-            hola@homie.pet
+            {SITE.contactEmail}
           </a>
           <p className="flex items-start gap-1.5 text-sm text-ink-500">
             <MapPinIcon size={16} className="mt-0.5 shrink-0 text-sage-600" />
@@ -70,7 +91,7 @@ export function SiteFooter() {
       </div>
 
       <div className="shell mt-10 flex flex-col gap-2 border-t border-cream-300 pt-6 text-xs text-ink-400 sm:flex-row sm:items-center sm:justify-between">
-        <p>© {new Date().getFullYear()} Homie. Hecho con cuidado.</p>
+        <p>© {new Date().getFullYear()} {SITE.name}. Hecho con cuidado.</p>
         <p>Publicar es gratis y siempre lo va a ser.</p>
       </div>
     </footer>

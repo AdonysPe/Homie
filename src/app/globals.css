@@ -52,6 +52,10 @@
   .eyebrow {
     @apply text-eyebrow uppercase text-clay-600;
   }
+
+  .legal-link {
+    @apply font-semibold text-clay-600 underline decoration-clay-300 underline-offset-2 transition-colors hover:text-clay-700 hover:decoration-clay-500;
+  }
 }
 
 /* La grilla de fondo cálida del hero, en CSS puro para no costar JS. */

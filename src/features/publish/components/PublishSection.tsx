@@ -16,7 +16,7 @@ export function PublishSection() {
           <SectionHeading
             eyebrow="Publicación"
             title={<span id="publicar-titulo">Contanos de tu mascota</span>}
-            description="Cuatro pasos cortos. Podés volver atrás cuando quieras."
+            description="Cinco pasos cortos. Podés volver atrás cuando quieras."
           />
         </Reveal>
 

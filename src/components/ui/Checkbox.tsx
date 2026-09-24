@@ -1,5 +1,7 @@
 'use client';
 
+import { useId, type ReactNode } from 'react';
+
 import { CheckIcon } from '@/components/icons';
 import { cn } from '@/lib/cn';
 import { FieldError } from './FieldError';
@@ -10,11 +12,14 @@ export function Checkbox({
   onChange,
   error,
 }: {
-  label: string;
+  /** Puede incluir enlaces (ej. a los Términos): activarlos no marca la casilla. */
+  label: ReactNode;
   checked: boolean;
   onChange: (checked: boolean) => void;
   error?: string;
 }) {
+  const errorId = useId();
+
   return (
     <div className="flex flex-col gap-1.5">
       <label className="flex items-start gap-3 text-sm text-ink-700">
@@ -25,6 +30,7 @@ export function Checkbox({
             checked={checked}
             onChange={(event) => onChange(event.target.checked)}
             aria-invalid={error ? true : undefined}
+            aria-describedby={error ? errorId : undefined}
             className={cn(
               'peer h-5 w-5 appearance-none rounded-md border bg-white',
               'transition-colors duration-150 checked:border-clay-500 checked:bg-clay-500',
@@ -38,7 +44,7 @@ export function Checkbox({
         </span>
         <span className="leading-snug">{label}</span>
       </label>
-      <FieldError message={error} />
+      <FieldError id={errorId} message={error} />
     </div>
   );
 }

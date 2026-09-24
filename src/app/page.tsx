@@ -13,7 +13,7 @@ export default function HomePage() {
     <>
       <SiteHeader />
 
-      <main>
+      <main id="contenido">
         <HeroSection />
         <RecentlyPublishedSection />
         <HowItWorksSection />

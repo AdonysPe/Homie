@@ -9,13 +9,14 @@ import { StepProgress } from '@/components/ui/StepProgress';
 import { usePublishForm } from '../hooks/usePublishForm';
 import { PUBLISH_STEPS, TOTAL_PUBLISH_STEPS } from '../lib/publish-steps';
 import { StepContact } from '../steps/StepContact';
+import { StepHealth } from '../steps/StepHealth';
 import { StepPet } from '../steps/StepPet';
 import { StepPhotos } from '../steps/StepPhotos';
 import { StepProfile } from '../steps/StepProfile';
 import { ListingPreview } from './ListingPreview';
 import { PublishSuccess } from './PublishSuccess';
 
-const STEP_COMPONENTS = [StepPet, StepProfile, StepPhotos, StepContact];
+const STEP_COMPONENTS = [StepPet, StepProfile, StepHealth, StepPhotos, StepContact];
 
 export function PublishWizard() {
   const {
@@ -88,7 +89,7 @@ export function PublishWizard() {
           </div>
 
           <StepProgress
-            steps={PUBLISH_STEPS.map((step) => ({ id: step.id, title: step.id }))}
+            steps={PUBLISH_STEPS.map((step) => ({ id: step.id, title: step.label }))}
             currentIndex={stepIndex}
             onStepSelect={goToStep}
           />

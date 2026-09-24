@@ -2,6 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Image from 'next/image';
+import Link from 'next/link';
 
 import { SpeciesIcon } from '@/components/icons';
 import { Badge } from '@/components/ui/Badge';
@@ -22,6 +23,7 @@ export function PetCard({ listing, isHighlighted = false, priority = false }: Pe
   const status = statusPresentation(listing.status);
   const publishedLabel = useRelativeTime(listing.publishedAt);
   const isLocalPreview = listing.photoUrl?.startsWith('blob:') ?? false;
+  const size = sizeLabel(listing.species, listing.size);
 
   return (
     <motion.article
@@ -84,7 +86,8 @@ export function PetCard({ listing, isHighlighted = false, priority = false }: Pe
         <p className="line-clamp-2 text-sm leading-snug text-ink-700">{listing.highlight}</p>
         <div className="flex flex-wrap items-baseline justify-between gap-x-2 text-xs text-ink-400">
           <span>
-            {speciesLabel(listing.species)} · {sizeLabel(listing.size)}
+            {speciesLabel(listing.species)}
+            {size ? ` · ${size}` : ''}
             {listing.interestedCount > 0
               ? ` · ${listing.interestedCount} ${listing.interestedCount === 1 ? 'interesado' : 'interesados'}`
               : ''}
@@ -92,6 +95,15 @@ export function PetCard({ listing, isHighlighted = false, priority = false }: Pe
           {publishedLabel ? <time dateTime={listing.publishedAt}>{publishedLabel}</time> : null}
         </div>
       </div>
+
+      {/* Toda la tarjeta es clickeable, pero el lector de pantalla anuncia un único enlace. */}
+      {listing.slug ? (
+        <Link
+          href={`/mascota/${listing.slug}`}
+          aria-label={`Conocé a ${listing.name}, ${speciesLabel(listing.species).toLowerCase()} en ${listing.city}`}
+          className="absolute inset-0 z-10 rounded-panel focus-visible:rounded-panel"
+        />
+      ) : null}
     </motion.article>
   );
 }

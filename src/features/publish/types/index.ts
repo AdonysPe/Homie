@@ -1,4 +1,4 @@
-import type { PetSex, PetSize, PetSpecies, RehomingReason } from '@/types/pet';
+import type { IdealHome, PetSex, PetSize, PetSpecies, RehomingReason } from '@/types/pet';
 
 /** Foto ya cargada en el navegador, con su URL de preview lista para revocar. */
 export interface PetPhoto {
@@ -11,22 +11,34 @@ export interface PetPhoto {
 export interface PublishFormValues {
   species: PetSpecies;
   name: string;
+
   ageValue: number;
   ageUnit: 'meses' | 'anos';
-  size: PetSize;
   sex: PetSex;
+  /** Solo se pide (y se valida) para especies con escala de tamaño. */
+  size?: PetSize;
+
   isSterilized: boolean;
   isVaccinated: boolean;
+  isDewormed: boolean;
+  hasMicrochip: boolean;
+  /** Privado: nunca se publica, solo lo recibe la familia adoptante. */
+  microchipNumber?: string;
+  specialNeeds?: string;
+  idealHome: IdealHome;
   goodWithKids: boolean;
   goodWithPets: boolean;
+
   photos: PetPhoto[];
   description?: string;
   reason: RehomingReason;
+
   ownerName: string;
   city: string;
   contactMethod: 'whatsapp' | 'email';
   contactValue: string;
   acceptsFollowUp: boolean;
+  acceptsTerms: boolean;
 }
 
 export type PublishFieldName = keyof PublishFormValues;

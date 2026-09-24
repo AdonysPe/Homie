@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 
 import { MotionProvider } from '@/components/MotionProvider';
+import { SITE } from '@/lib/site';
 import './globals.css';
 
 const inter = Inter({
@@ -18,15 +19,21 @@ const jakarta = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: 'Homie · Publicá a tu mascota en adopción',
+  metadataBase: new URL(SITE.url),
+  title: {
+    default: `${SITE.name} · Publicá a tu mascota en adopción`,
+    template: `%s | ${SITE.name}`,
+  },
   description:
     'Publicá a tu mascota en 3 minutos y elegí vos su nueva familia. Perros, gatos, conejos, aves y más. Gratis y sin intermediarios.',
   keywords: ['dar en adopción', 'rehoming', 'mascotas', 'perros', 'gatos', 'adopción responsable'],
+  alternates: { canonical: '/' },
   openGraph: {
-    title: 'Homie · Publicá a tu mascota en adopción',
+    title: `${SITE.name} · Publicá a tu mascota en adopción`,
     description: 'Publicá a tu mascota en 3 minutos y elegí vos su nueva familia.',
     type: 'website',
-    locale: 'es_AR',
+    siteName: SITE.name,
+    locale: SITE.locale,
   },
 };
 
@@ -41,10 +48,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang="es" className={`${inter.variable} ${jakarta.variable}`}>
       <body>
         <a
-          href="#publicar"
+          href="#contenido"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-pill focus:bg-clay-500 focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-white"
         >
-          Ir al formulario de publicación
+          Saltar al contenido
         </a>
         <MotionProvider>{children}</MotionProvider>
       </body>

@@ -1,11 +1,13 @@
 'use client';
 
+import Link from 'next/link';
 import { Controller } from 'react-hook-form';
 
 import { Checkbox } from '@/components/ui/Checkbox';
 import { OptionGroup } from '@/components/ui/OptionGroup';
 import { TextField } from '@/components/ui/TextField';
 import { ShieldIcon } from '@/components/icons';
+import { SITE } from '@/lib/site';
 import type { PublishStepProps } from './types';
 
 export function StepContact({ form }: PublishStepProps) {
@@ -63,8 +65,8 @@ export function StepContact({ form }: PublishStepProps) {
       <div className="flex items-start gap-3 rounded-card bg-sage-50 p-4 text-sm text-sage-800">
         <ShieldIcon size={20} className="mt-0.5 shrink-0 text-sage-600" />
         <p className="leading-snug">
-          Tu contacto no aparece en la publicación. Solo se lo damos a quien complete el formulario
-          de adopción.
+          Tu teléfono y tu email nunca aparecen en la publicación. Los interesados te escriben por un
+          buzón anónimo y vos decidís si revelás tu contacto.
         </p>
       </div>
 
@@ -73,10 +75,35 @@ export function StepContact({ form }: PublishStepProps) {
         name="acceptsFollowUp"
         render={({ field }) => (
           <Checkbox
-            label="Acepto que Homie me contacte para acompañar la adopción."
+            label="Acepto que Homie me avise de cada interesado y me acompañe en la adopción."
             checked={field.value}
             onChange={field.onChange}
             error={formState.errors.acceptsFollowUp?.message}
+          />
+        )}
+      />
+
+      <Controller
+        control={control}
+        name="acceptsTerms"
+        render={({ field }) => (
+          <Checkbox
+            label={
+              <>
+                He leído y acepto los{' '}
+                <Link href="/terminos" target="_blank" className="legal-link">
+                  Términos<span className="sr-only"> (se abre en otra pestaña)</span>
+                </Link>{' '}
+                y la{' '}
+                <Link href="/privacidad" target="_blank" className="legal-link">
+                  Política de Privacidad<span className="sr-only"> (se abre en otra pestaña)</span>
+                </Link>{' '}
+                de {SITE.name}.
+              </>
+            }
+            checked={field.value}
+            onChange={field.onChange}
+            error={formState.errors.acceptsTerms?.message}
           />
         )}
       />
