@@ -4,6 +4,7 @@ import { motion, type HTMLMotionProps } from 'framer-motion';
 import { forwardRef } from 'react';
 
 import { cn } from '@/lib/cn';
+import { Spinner } from './Spinner';
 
 type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'quiet';
 type ButtonSize = 'sm' | 'md' | 'lg';
@@ -12,6 +13,8 @@ export interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'ref'> {
   variant?: ButtonVariant;
   size?: ButtonSize;
   fullWidth?: boolean;
+  /** Muestra un spinner, bloquea el botón y lo anuncia como ocupado. */
+  isLoading?: boolean;
 }
 
 const VARIANTS: Record<ButtonVariant, string> = {
@@ -30,15 +33,27 @@ const SIZES: Record<ButtonSize, string> = {
 };
 
 export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
-  { variant = 'primary', size = 'md', fullWidth = false, className, type = 'button', ...props },
+  {
+    variant = 'primary',
+    size = 'md',
+    fullWidth = false,
+    isLoading = false,
+    className,
+    type = 'button',
+    disabled,
+    children,
+    ...props
+  },
   ref,
 ) {
   return (
     <motion.button
       ref={ref}
       type={type}
-      whileHover={props.disabled ? undefined : { y: -1 }}
-      whileTap={props.disabled ? undefined : { scale: 0.98 }}
+      disabled={disabled || isLoading}
+      aria-busy={isLoading || undefined}
+      whileHover={disabled || isLoading ? undefined : { y: -1 }}
+      whileTap={disabled || isLoading ? undefined : { scale: 0.98 }}
       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
       className={cn(
         'inline-flex items-center justify-center rounded-pill font-semibold tracking-[-0.01em]',
@@ -49,6 +64,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
         className,
       )}
       {...props}
-    />
+    >
+      {isLoading ? <Spinner size={16} /> : null}
+      {children as React.ReactNode}
+    </motion.button>
   );
 });

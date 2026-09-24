@@ -3,6 +3,7 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 import { Button } from '@/components/ui/Button';
+import { AccountMenu, type AccountSummary } from '@/features/auth/components/AccountMenu';
 import { scrollToSection } from '@/lib/scroll';
 import { BrandMark } from './BrandMark';
 
@@ -12,7 +13,7 @@ const NAV_LINKS = [
   { id: 'preguntas', label: 'Preguntas' },
 ];
 
-export function SiteHeader() {
+export function SiteHeader({ account }: { account: AccountSummary | null }) {
   const { scrollY, scrollYProgress } = useScroll();
   const borderOpacity = useTransform(scrollY, [0, 90], [0, 1]);
   const background = useTransform(
@@ -55,9 +56,12 @@ export function SiteHeader() {
           ))}
         </nav>
 
-        <Button size="sm" onClick={() => scrollToSection('publicar')} className="hidden sm:inline-flex">
-          Publicar a mi mascota
-        </Button>
+        <div className="flex items-center gap-2">
+          <Button size="sm" onClick={() => scrollToSection('publicar')} className="hidden sm:inline-flex">
+            Publicar a mi mascota
+          </Button>
+          <AccountMenu account={account} />
+        </div>
       </div>
     </motion.header>
   );

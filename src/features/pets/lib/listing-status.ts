@@ -10,6 +10,7 @@ const STATUS_PRESENTATION: Record<ListingStatus, StatusPresentation> = {
   publicada: { label: 'Publicada', tone: 'neutral' },
   'con-interesados': { label: 'Con interesados', tone: 'clay' },
   adoptada: { label: 'Adoptada', tone: 'sage' },
+  pausada: { label: 'Pausada', tone: 'neutral' },
 };
 
 export const statusPresentation = (status: ListingStatus): StatusPresentation =>

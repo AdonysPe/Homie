@@ -11,5 +11,8 @@ npm-debug.log*
 next-env.d.ts
 tsconfig.tsbuildinfo
 
+# Base de datos local (PGlite)
+.data
+
 # Claude Code local settings
 .claude/settings.local.json

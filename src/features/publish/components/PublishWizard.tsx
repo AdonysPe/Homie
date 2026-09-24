@@ -24,6 +24,7 @@ export function PublishWizard() {
     stepIndex,
     direction,
     status,
+    publishedSlug,
     currentStep,
     isLastStep,
     goToNextStep,
@@ -64,7 +65,7 @@ export function PublishWizard() {
   if (status === 'published') {
     return (
       <div className="surface p-6 sm:p-8">
-        <PublishSuccess petName={petName} onPublishAnother={startAnother} />
+        <PublishSuccess petName={petName} slug={publishedSlug} onPublishAnother={startAnother} />
       </div>
     );
   }

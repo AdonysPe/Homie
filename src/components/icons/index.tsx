@@ -171,3 +171,64 @@ export const WhatsAppIcon = ({ size = 24, ...props }: SVGProps<SVGSVGElement> & 
     <path d="M17.47 14.38c-.3-.15-1.76-.87-2.03-.97-.27-.1-.47-.15-.67.15-.2.3-.77.97-.94 1.17-.17.2-.35.22-.64.07-.3-.15-1.26-.46-2.39-1.47-.88-.79-1.48-1.76-1.65-2.06-.17-.3-.02-.46.13-.6.13-.14.3-.35.45-.52.15-.18.2-.3.3-.5.1-.2.05-.37-.03-.52-.07-.15-.67-1.6-.91-2.2-.24-.58-.49-.5-.67-.5h-.57c-.2 0-.52.07-.79.37-.27.3-1.04 1.02-1.04 2.48s1.07 2.88 1.21 3.08c.15.2 2.1 3.2 5.08 4.49.71.3 1.26.49 1.7.63.71.22 1.36.19 1.87.12.57-.09 1.76-.72 2-1.41.25-.7.25-1.29.18-1.41-.07-.13-.27-.2-.57-.35Zm-5.42 7.4h-.01a9.87 9.87 0 0 1-5.03-1.38l-.36-.21-3.74.98 1-3.65-.24-.37a9.86 9.86 0 0 1-1.51-5.26c0-5.45 4.44-9.88 9.9-9.88a9.83 9.83 0 0 1 9.88 9.89c0 5.45-4.44 9.88-9.89 9.88Zm8.41-18.3A11.81 11.81 0 0 0 12.05 0C5.5 0 .16 5.34.16 11.89c0 2.1.55 4.14 1.59 5.94L.06 24l6.3-1.65a11.88 11.88 0 0 0 5.68 1.45h.01c6.55 0 11.89-5.34 11.89-11.89 0-3.18-1.24-6.16-3.48-8.41Z" />
   </svg>
 );
+
+/** Sello de verificación (roseta con check), como el de las cuentas verificadas. */
+export const VerifiedIcon = ({ size = 24, ...props }: SVGProps<SVGSVGElement> & { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden focusable="false" {...props}>
+    <path d="M12 1.8 14.5 3.6 17.6 3.5 18.6 6.4 21.1 8.2 20.2 11.2 21.1 14.1 18.6 15.9 17.6 18.8 14.5 18.7 12 20.5 9.5 18.7 6.4 18.8 5.4 15.9 2.9 14.1 3.8 11.2 2.9 8.2 5.4 6.4 6.4 3.5 9.5 3.6Z" />
+    <path d="m8.4 11.3 2.4 2.4 4.8-4.8" fill="none" stroke="#fff" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+);
+
+export const FlagIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <path d="M5.5 21V4.5M5.5 4.5h11.2l-2.2 4 2.2 4H5.5" />
+  </LineIcon>
+);
+
+export const MailIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <rect x="3.2" y="5.5" width="17.6" height="13" rx="2.4" />
+    <path d="m4 7 8 6 8-6" />
+  </LineIcon>
+);
+
+export const LockIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <rect x="5" y="10.5" width="14" height="10" rx="2.4" />
+    <path d="M8.2 10.5V7.8a3.8 3.8 0 0 1 7.6 0v2.7" />
+  </LineIcon>
+);
+
+export const SendIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <path d="M12 19V5.5M6.5 11 12 5.5l5.5 5.5" />
+  </LineIcon>
+);
+
+export const PauseIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <path d="M9 6.5v11M15 6.5v11" />
+  </LineIcon>
+);
+
+export const UserIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <circle cx="12" cy="8.5" r="3.6" />
+    <path d="M5 20c.9-3.4 3.8-5.4 7-5.4s6.1 2 7 5.4" />
+  </LineIcon>
+);
+
+export const EyeIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <path d="M2.8 12S6.2 5.8 12 5.8 21.2 12 21.2 12 17.8 18.2 12 18.2 2.8 12 2.8 12Z" />
+    <circle cx="12" cy="12" r="2.8" />
+  </LineIcon>
+);
+
+export const EyeOffIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <path d="M4 4l16 16M10.2 6a9.6 9.6 0 0 1 1.8-.2c5.8 0 9.2 6.2 9.2 6.2a16 16 0 0 1-2.6 3.3M6.6 7.7A15.6 15.6 0 0 0 2.8 12s3.4 6.2 9.2 6.2a8.8 8.8 0 0 0 4.1-1" />
+    <path d="M9.9 10a2.8 2.8 0 0 0 4 4" />
+  </LineIcon>
+);

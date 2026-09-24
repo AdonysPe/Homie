@@ -8,6 +8,7 @@ import {
   HeartPulseIcon,
   HomeHeartIcon,
   InfoIcon,
+  LockIcon,
   MinusIcon,
   PillIcon,
   ShieldIcon,
@@ -15,11 +16,17 @@ import {
   SyringeIcon,
 } from '@/components/icons';
 import { Badge } from '@/components/ui/Badge';
+import { VerifiedBadge } from '@/features/auth/components/VerifiedBadge';
+import {
+  ContactFamilyButton,
+  type ContactState,
+} from '@/features/messaging/components/ContactFamilyButton';
 import { statusPresentation } from '@/features/pets/lib/listing-status';
+import { ReportButton } from '@/features/reports/components/ReportButton';
 import { cn } from '@/lib/cn';
 import { idealHomeLabel, sexLabel, sizeLabel, speciesLabel } from '@/lib/pet-catalog';
 import { absoluteUrl, SITE } from '@/lib/site';
-import type { PetListing } from '@/types/pet';
+import type { PetListing, PetStatus } from '@/types/pet';
 import { petPath } from '../lib/pet-seo';
 import { ShareBar, SharePanel } from './ShareActions';
 
@@ -53,9 +60,30 @@ function HealthRow({ label, ok, icon }: { label: string; ok: boolean; icon: Reac
   );
 }
 
-export function PetDetail({ pet }: { pet: PetListing }) {
+interface PetDetailProps {
+  pet: PetListing;
+  /** Estado real en la base (el de `pet.status` es el de presentación). */
+  status: PetStatus;
+  isOwner: boolean;
+  contactState: ContactState;
+}
+
+const STATUS_NOTICES: Partial<Record<PetStatus, { title: string; body: string }>> = {
+  'en-revision': {
+    title: 'Publicación en revisión',
+    body: 'Recibimos reportes sobre esta publicación y la estamos revisando. Mientras tanto no recibe mensajes nuevos.',
+  },
+  pausada: {
+    title: 'Publicación pausada',
+    body: 'Solo vos la ves. Reanudala desde tu panel cuando quieras volver a recibir mensajes.',
+  },
+};
+
+export function PetDetail({ pet, status: petStatus, isOwner, contactState }: PetDetailProps) {
   const status = statusPresentation(pet.status);
-  const isAdopted = pet.status === 'adoptada';
+  const isAdopted = petStatus === 'adoptada';
+  const isActive = petStatus === 'publicada';
+  const notice = STATUS_NOTICES[petStatus];
   const size = sizeLabel(pet.species, pet.size);
   const canonicalUrl = absoluteUrl(petPath(pet));
 
@@ -101,6 +129,7 @@ export function PetDetail({ pet }: { pet: PetListing }) {
                     alt={pet.photoAlt}
                     fill
                     priority
+                    unoptimized={pet.photoUrl.startsWith('/api/fotos/')}
                     sizes="(max-width: 1024px) 100vw, 46rem"
                     className="object-cover"
                   />
@@ -115,7 +144,14 @@ export function PetDetail({ pet }: { pet: PetListing }) {
                 <ul className="grid grid-cols-4 gap-2" aria-label={`Más fotos de ${pet.name}`}>
                   {pet.gallery.map((photo) => (
                     <li key={photo.url} className="relative aspect-square overflow-hidden rounded-card bg-cream-200">
-                      <Image src={photo.url} alt={photo.alt} fill sizes="12rem" className="object-cover" />
+                      <Image
+                        src={photo.url}
+                        alt={photo.alt}
+                        fill
+                        sizes="12rem"
+                        unoptimized={photo.url.startsWith('/api/fotos/')}
+                        className="object-cover"
+                      />
                     </li>
                   ))}
                 </ul>
@@ -132,7 +168,19 @@ export function PetDetail({ pet }: { pet: PetListing }) {
               </div>
               <h1 className="text-display-md font-display text-balance">{pet.name}</h1>
               <p className="text-lede text-ink-500">{pet.highlight}</p>
+              {pet.ownerVerified ? (
+                <VerifiedBadge verified label="Publicado por una familia verificada" className="self-start" />
+              ) : null}
             </header>
+
+            {notice ? (
+              <div role="status" className="flex items-start gap-3 rounded-card bg-honey-200/60 p-4 text-ink-700">
+                <InfoIcon size={20} className="mt-0.5 shrink-0 text-honey-600" />
+                <p className="leading-snug">
+                  <strong className="font-semibold">{notice.title}.</strong> {notice.body}
+                </p>
+              </div>
+            ) : null}
 
             {isAdopted ? (
               <div className="flex items-start gap-3 rounded-card bg-sage-50 p-4 text-sage-800">
@@ -201,19 +249,47 @@ export function PetDetail({ pet }: { pet: PetListing }) {
                 cuándo compartir su teléfono.
               </p>
             </div>
+
+            {!isOwner ? (
+              <div>
+                <ReportButton petId={pet.id} petName={pet.name} />
+              </div>
+            ) : null}
           </article>
 
-          {!isAdopted ? (
-            <aside className="hidden lg:block">
-              <div className="sticky top-24">
-                <SharePanel pet={sharePet} canonicalUrl={canonicalUrl} />
-              </div>
-            </aside>
-          ) : null}
+          <aside className="hidden lg:block">
+            <div className="sticky top-24 flex flex-col gap-4">
+              {!isAdopted || contactState.kind === 'existing' ? (
+                <div className="surface flex flex-col gap-4 p-5">
+                  <div>
+                    <p className="text-sm font-semibold text-ink-900">¿Te interesa {pet.name}?</p>
+                    <p className="mt-1 flex items-start gap-1.5 text-sm leading-snug text-ink-500">
+                      <LockIcon size={15} className="mt-0.5 shrink-0 text-sage-600" />
+                      Escribile a su familia por el buzón anónimo. Tu email nunca se comparte.
+                    </p>
+                  </div>
+                  <ContactFamilyButton petId={pet.id} petName={pet.name} state={contactState} />
+                </div>
+              ) : null}
+              {isActive ? <SharePanel pet={sharePet} canonicalUrl={canonicalUrl} /> : null}
+            </div>
+          </aside>
         </div>
       </main>
 
-      {!isAdopted ? <ShareBar pet={sharePet} canonicalUrl={canonicalUrl} /> : null}
+      {isActive ? (
+        <ShareBar
+          pet={sharePet}
+          canonicalUrl={canonicalUrl}
+          primaryAction={
+            <ContactFamilyButton petId={pet.id} petName={pet.name} state={contactState} variant="bar" />
+          }
+        />
+      ) : !isAdopted || contactState.kind === 'existing' ? (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t border-cream-300 bg-cream-50/85 px-4 pb-[max(0.875rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl lg:hidden">
+          <ContactFamilyButton petId={pet.id} petName={pet.name} state={contactState} variant="bar" />
+        </div>
+      ) : null}
     </>
   );
 }

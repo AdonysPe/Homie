@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
 
 import { MotionProvider } from '@/components/MotionProvider';
+import { Toaster } from '@/components/ui/Toast';
 import { SITE } from '@/lib/site';
 import './globals.css';
 
@@ -53,7 +54,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         >
           Saltar al contenido
         </a>
-        <MotionProvider>{children}</MotionProvider>
+        <MotionProvider>
+          {children}
+          <Toaster />
+        </MotionProvider>
       </body>
     </html>
   );

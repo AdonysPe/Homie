@@ -20,6 +20,8 @@ export const SITE = {
   contactEmail: 'hola@homie.pet',
   privacyEmail: 'privacidad@homie.pet',
   locale: 'es_AR',
+  /** Las fechas se muestran en hora argentina aunque el servidor corra en UTC. */
+  timeZone: 'America/Argentina/Buenos_Aires',
 } as const;
 
 export const absoluteUrl = (path: string): string => new URL(path, SITE.url).toString();

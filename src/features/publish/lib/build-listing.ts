@@ -3,7 +3,13 @@ import { createId, formatAge } from '@/lib/format';
 import type { PetListing } from '@/types/pet';
 import type { PublishFormValues } from '../types';
 
-function buildHighlight(values: PublishFormValues): string {
+type HighlightSource = Pick<
+  PublishFormValues,
+  'description' | 'goodWithKids' | 'goodWithPets' | 'isVaccinated'
+>;
+
+/** Frase corta de la tarjeta: la descripción recortada o el mejor rasgo disponible. */
+export function buildHighlight(values: HighlightSource): string {
   if (values.description && values.description.length > 0) {
     return values.description.length > 60
       ? `${values.description.slice(0, 57).trimEnd()}…`

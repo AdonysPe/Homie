@@ -19,8 +19,8 @@ interface UsePetPhotosResult {
  * Encapsula la gestión de archivos y sus URLs de preview.
  * Los componentes de UI solo reciben `PetPhoto[]` y callbacks.
  *
- * Cada URL se revoca al quitar la foto, nunca al desmontar: la publicación
- * ya creada sigue mostrando esa misma URL en la galería.
+ * Cada URL se revoca al quitar la foto, o al empezar otra publicación
+ * (ver `startAnother` en usePublishForm).
  */
 export function usePetPhotos(
   photos: PetPhoto[],

@@ -4,9 +4,10 @@ import { Reveal } from '@/components/ui/Reveal';
 import { SectionHeading } from '@/components/ui/SectionHeading';
 import { Button } from '@/components/ui/Button';
 import { scrollToSection } from '@/lib/scroll';
+import type { PetListing } from '@/types/pet';
 import { PetGallery } from './PetGallery';
 
-export function PetsSection() {
+export function PetsSection({ listings }: { listings: PetListing[] }) {
   return (
     <section id="mascotas" className="scroll-mt-20 py-section">
       <div className="shell flex flex-col gap-8">
@@ -24,7 +25,7 @@ export function PetsSection() {
         </Reveal>
 
         <Reveal delay={0.06}>
-          <PetGallery />
+          <PetGallery listings={listings} />
         </Reveal>
       </div>
     </section>

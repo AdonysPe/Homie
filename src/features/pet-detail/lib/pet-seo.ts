@@ -18,8 +18,14 @@ export function buildPetMetadata(pet: PetListing): Metadata {
   const title = petTitle(pet);
   const description = petDescription(pet);
   const url = petPath(pet);
+  // Las fotos de Unsplash se recortan a 1200×630; las subidas se usan tal cual (1600 px máx.).
+  const isUnsplash = pet.photoUrl?.startsWith('https://images.unsplash.com') ?? false;
   const images = pet.photoUrl
-    ? [{ url: ogImageFor(pet.photoUrl), width: 1200, height: 630, alt: pet.photoAlt }]
+    ? [
+        isUnsplash
+          ? { url: ogImageFor(pet.photoUrl), width: 1200, height: 630, alt: pet.photoAlt }
+          : { url: pet.photoUrl, alt: pet.photoAlt },
+      ]
     : undefined;
 
   return {
@@ -42,7 +48,5 @@ export function buildPetMetadata(pet: PetListing): Metadata {
       description,
       images: images?.map((image) => image.url),
     },
-    // Una mascota ya adoptada no debería competir en buscadores con las que buscan hogar.
-    robots: pet.status === 'adoptada' ? { index: false, follow: true } : undefined,
   };
 }

@@ -6,19 +6,24 @@ import { SiteFooter } from '@/features/home/components/SiteFooter';
 import { SiteHeader } from '@/features/home/components/SiteHeader';
 import { StickyPublishCta } from '@/features/home/components/StickyPublishCta';
 import { PetsSection } from '@/features/pets/components/PetsSection';
-import { PublishSection } from '@/features/publish/components/PublishSection';
+import { PublishSection, type PublishAccess } from '@/features/publish/components/PublishSection';
+import { listPublicPets } from '@/server/pets';
+import { getAccountSummary } from '@/server/session';
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [listings, account] = await Promise.all([listPublicPets(), getAccountSummary()]);
+  const publishAccess: PublishAccess = !account ? 'anonymous' : account.emailVerified ? 'ready' : 'unverified';
+
   return (
     <>
-      <SiteHeader />
+      <SiteHeader account={account} />
 
       <main id="contenido">
         <HeroSection />
         <RecentlyPublishedSection />
         <HowItWorksSection />
-        <PublishSection />
-        <PetsSection />
+        <PublishSection access={publishAccess} />
+        <PetsSection listings={listings} />
         <FaqSection />
       </main>
 

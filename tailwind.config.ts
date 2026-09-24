@@ -98,10 +98,15 @@ const config: Config = {
           '0%': { transform: 'scale(0.85)', opacity: '0.7' },
           '100%': { transform: 'scale(1.6)', opacity: '0' },
         },
+        'spinner-fade': {
+          '0%': { opacity: '1' },
+          '100%': { opacity: '0.15' },
+        },
       },
       animation: {
         'fade-up': 'fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both',
         'pulse-ring': 'pulse-ring 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite',
+        'spinner-fade': 'spinner-fade 0.8s linear infinite',
       },
     },
   },

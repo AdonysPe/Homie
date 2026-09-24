@@ -6,6 +6,7 @@ import Link from 'next/link';
 
 import { SpeciesIcon } from '@/components/icons';
 import { Badge } from '@/components/ui/Badge';
+import { ReportButton } from '@/features/reports/components/ReportButton';
 import { cn } from '@/lib/cn';
 import { sizeLabel, speciesLabel } from '@/lib/pet-catalog';
 import type { PetListing } from '@/types/pet';
@@ -48,6 +49,8 @@ export function PetCard({ listing, isHighlighted = false, priority = false }: Pe
             <Image
               src={listing.photoUrl}
               alt={listing.photoAlt}
+              // Las fotos subidas ya llegan comprimidas y se sirven con caché inmutable.
+              unoptimized={listing.photoUrl.startsWith('/api/fotos/')}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               priority={priority}
@@ -68,6 +71,16 @@ export function PetCard({ listing, isHighlighted = false, priority = false }: Pe
             {status.label}
           </Badge>
         </div>
+
+        {/* Por encima del enlace estirado (z-10) para que no abra la ficha. */}
+        {listing.slug ? (
+          <ReportButton
+            petId={listing.id}
+            petName={listing.name}
+            variant="overlay"
+            className="absolute right-3 top-3 z-20"
+          />
+        ) : null}
 
         <div className="absolute inset-x-3 bottom-3 flex items-end justify-between gap-2 text-white">
           <div>

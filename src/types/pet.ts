@@ -22,7 +22,12 @@ export const REHOMING_REASONS = [
 ] as const;
 export type RehomingReason = (typeof REHOMING_REASONS)[number];
 
-export type ListingStatus = 'en-revision' | 'publicada' | 'con-interesados' | 'adoptada';
+/** Estado guardado en la base de datos. */
+export const PET_STATUSES = ['publicada', 'en-revision', 'pausada', 'adoptada'] as const;
+export type PetStatus = (typeof PET_STATUSES)[number];
+
+/** Estado que se muestra: "con interesados" se deriva de una publicación activa con consultas. */
+export type ListingStatus = PetStatus | 'con-interesados';
 
 export interface PetHealth {
   sterilized: boolean;
@@ -67,4 +72,6 @@ export interface PetListing {
   status: ListingStatus;
   interestedCount: number;
   publishedAt: string;
+  /** La familia que publica confirmó su email. */
+  ownerVerified?: boolean;
 }

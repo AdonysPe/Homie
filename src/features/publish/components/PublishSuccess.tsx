@@ -1,21 +1,27 @@
 'use client';
 
 import { motion } from 'framer-motion';
+import Link from 'next/link';
 
-import { CheckIcon, ChatIcon, HomeHeartIcon, ShieldIcon } from '@/components/icons';
+import { ChatIcon, CheckIcon, HomeHeartIcon, ShieldIcon } from '@/components/icons';
 import { Button } from '@/components/ui/Button';
 
 const NEXT_STEPS = [
-  { icon: ShieldIcon, text: 'Revisamos la publicación (menos de 24 h).' },
-  { icon: ChatIcon, text: 'Te avisamos por cada persona interesada.' },
+  { icon: ChatIcon, text: 'Los interesados te escriben por el buzón anónimo.' },
+  { icon: ShieldIcon, text: 'Tu teléfono y tu email siguen ocultos.' },
   { icon: HomeHeartIcon, text: 'Vos elegís con quién sigue su historia.' },
 ];
 
+const linkButton =
+  'inline-flex h-11 items-center justify-center rounded-pill px-5 text-[0.95rem] font-semibold transition-colors duration-200';
+
 export function PublishSuccess({
   petName,
+  slug,
   onPublishAnother,
 }: {
   petName: string;
+  slug: string | null;
   onPublishAnother: () => void;
 }) {
   return (
@@ -40,8 +46,8 @@ export function PublishSuccess({
       </div>
 
       <div className="max-w-prose">
-        <h3 className="text-display-sm font-display">Listo. {petName} ya está en camino.</h3>
-        <p className="mt-2 text-ink-500">Desde acá nos ocupamos nosotros.</p>
+        <h3 className="text-display-sm font-display">Listo. {petName} ya está publicado.</h3>
+        <p className="mt-2 text-ink-500">Compartí su ficha para que llegue a más personas.</p>
       </div>
 
       <ul className="flex w-full max-w-md flex-col gap-2 text-left">
@@ -60,10 +66,18 @@ export function PublishSuccess({
       </ul>
 
       <div className="flex flex-col gap-2 sm:flex-row">
-        <Button onClick={() => document.getElementById('mascotas')?.scrollIntoView({ behavior: 'smooth' })}>
-          Ver la galería
-        </Button>
-        <Button variant="secondary" onClick={onPublishAnother}>
+        {slug ? (
+          <Link href={`/mascota/${slug}`} className={`${linkButton} bg-clay-500 text-white shadow-soft hover:bg-clay-600`}>
+            Ver su publicación
+          </Link>
+        ) : null}
+        <Link
+          href="/dashboard"
+          className={`${linkButton} border border-cream-400 bg-white text-ink-900 hover:border-clay-300 hover:bg-clay-50`}
+        >
+          Ir a mi panel
+        </Link>
+        <Button variant="ghost" onClick={onPublishAnother}>
           Publicar otra mascota
         </Button>
       </div>

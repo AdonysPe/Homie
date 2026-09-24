@@ -1,24 +1,14 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect } from 'react';
 
-import { useListingsStore } from '../store/listings-store';
+import type { PetListing } from '@/types/pet';
 import { usePetFilter } from '../hooks/usePetFilter';
 import { PetCard } from './PetCard';
 import { PetFilterBar } from './PetFilterBar';
 
-export function PetGallery() {
-  const listings = useListingsStore((state) => state.listings);
-  const justPublishedId = useListingsStore((state) => state.justPublishedId);
-  const clearHighlight = useListingsStore((state) => state.clearHighlight);
+export function PetGallery({ listings }: { listings: PetListing[] }) {
   const { activeFilter, setActiveFilter, options, filteredListings } = usePetFilter(listings);
-
-  useEffect(() => {
-    if (!justPublishedId) return;
-    const timeout = setTimeout(clearHighlight, 6000);
-    return () => clearTimeout(timeout);
-  }, [clearHighlight, justPublishedId]);
 
   return (
     <div className="flex flex-col gap-6">
@@ -45,11 +35,7 @@ export function PetGallery() {
                 ease: [0.22, 1, 0.36, 1],
               }}
             >
-              <PetCard
-                listing={listing}
-                isHighlighted={listing.id === justPublishedId}
-                priority={index < 2}
-              />
+              <PetCard listing={listing} priority={index < 2} />
             </motion.li>
           ))}
         </AnimatePresence>
