@@ -17,14 +17,15 @@ export function PublishSection({ access }: { access: PublishAccess }) {
   return (
     <section
       id="publicar"
-      className="flex min-h-[100svh] scroll-mt-20 flex-col justify-center bg-cream-200/70 py-16 sm:py-20"
+      className="flex min-h-[100svh] scroll-mt-14 flex-col justify-center bg-cream-100 py-section"
       aria-labelledby="publicar-titulo"
     >
       <div className="shell flex flex-col gap-8">
         <Reveal>
           <SectionHeading
+            align="center"
             eyebrow="Publicación"
-            title={<span id="publicar-titulo">Contanos de tu mascota</span>}
+            title={<span id="publicar-titulo">Contanos de tu mascota.</span>}
             description="Cinco pasos cortos. Podés volver atrás cuando quieras."
           />
         </Reveal>

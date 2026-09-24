@@ -21,7 +21,7 @@ export default async function SignInPage({
   if (await getCurrentUser()) redirect(returnTo);
 
   return (
-    <AuthPageShell>
+    <AuthPageShell backHref={returnTo}>
       <AuthForm mode="ingresar" returnTo={returnTo} />
     </AuthPageShell>
   );

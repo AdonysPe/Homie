@@ -11,7 +11,7 @@ export const VIDEO_THEME = {
   ink: '#2A2521',
   inkSoft: '#6E635A',
   fontFamily:
-    'var(--font-display), var(--font-sans), "Segoe UI", system-ui, -apple-system, sans-serif',
+    '-apple-system, BlinkMacSystemFont, var(--font-sans), "Segoe UI", system-ui, sans-serif',
 } as const;
 
 export const VIDEO_CONFIG = {

@@ -2,7 +2,6 @@
 
 import { AnimatePresence, motion } from 'framer-motion';
 
-import { ArrowRightIcon, PawIcon } from '@/components/icons';
 import { scrollToSection } from '@/lib/scroll';
 import { useElementInView } from '../hooks/useElementInView';
 
@@ -29,11 +28,9 @@ export function StickyPublishCta() {
           <button
             type="button"
             onClick={() => scrollToSection('publicar')}
-            className="flex w-full items-center justify-center gap-2.5 rounded-pill bg-clay-500 px-6 py-4 text-[0.95rem] font-bold text-white shadow-lift transition-colors duration-200 hover:bg-clay-600 sm:w-auto sm:py-3.5"
+            className="flex w-full items-center justify-center rounded-pill bg-clay-500 px-6 py-3.5 text-[0.95rem] font-semibold text-white shadow-lift transition-colors duration-200 hover:bg-clay-600 sm:w-auto sm:py-3"
           >
-            <PawIcon size={20} />
             Publicar a mi mascota
-            <ArrowRightIcon size={18} />
           </button>
         </motion.div>
       ) : null}

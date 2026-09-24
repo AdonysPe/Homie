@@ -16,20 +16,20 @@ const HOVER_SPEED = 9;
 
 function MarqueeItem({ listing }: { listing: PetListing }) {
   return (
-    <figure className="flex w-[9.5rem] shrink-0 flex-col gap-2 rounded-card border border-cream-300 bg-white/70 p-2 backdrop-blur-sm transition-colors duration-300 hover:border-clay-200 hover:bg-white sm:w-[11rem]">
-      <div className="relative aspect-[5/4] overflow-hidden rounded-[0.9rem] bg-cream-200">
+    <figure className="group flex w-[11rem] shrink-0 flex-col gap-3 sm:w-[14rem]">
+      <div className="relative aspect-[4/5] overflow-hidden rounded-[1.5rem] bg-cream-200">
         <Image
           src={listing.photoUrl!}
           alt={listing.photoAlt}
           fill
           loading="lazy"
-          sizes="176px"
-          className="object-cover"
+          sizes="224px"
+          className="object-cover transition-transform duration-700 ease-soft group-hover:scale-[1.04]"
         />
       </div>
-      <figcaption className="px-0.5 pb-0.5">
-        <p className="text-sm font-bold leading-none text-ink-900">{listing.name}</p>
-        <p className="mt-1 truncate text-[0.7rem] text-ink-400">
+      <figcaption className="px-1">
+        <p className="text-[0.95rem] font-semibold leading-none text-ink-900">{listing.name}</p>
+        <p className="mt-1.5 truncate text-xs text-ink-400">
           {speciesLabel(listing.species)} · {listing.city}
         </p>
       </figcaption>
@@ -80,7 +80,7 @@ export function PetMarquee() {
           <div
             key={half}
             ref={half === 0 ? halfRef : undefined}
-            className="flex gap-3 pr-3"
+            className="flex gap-4 pr-4 sm:gap-5 sm:pr-5"
             aria-hidden={half === 1 ? true : undefined}
           >
             {MARQUEE_ITEMS.map((listing) => (
@@ -90,8 +90,8 @@ export function PetMarquee() {
         ))}
       </motion.div>
 
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-cream-100 to-transparent sm:w-28" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-cream-100 to-transparent sm:w-28" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-cream-100 to-transparent sm:w-32" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-cream-100 to-transparent sm:w-32" />
     </div>
   );
 }

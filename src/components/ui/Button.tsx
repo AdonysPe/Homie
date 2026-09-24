@@ -52,7 +52,6 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       type={type}
       disabled={disabled || isLoading}
       aria-busy={isLoading || undefined}
-      whileHover={disabled || isLoading ? undefined : { y: -1 }}
       whileTap={disabled || isLoading ? undefined : { scale: 0.98 }}
       transition={{ type: 'spring', stiffness: 500, damping: 30 }}
       className={cn(

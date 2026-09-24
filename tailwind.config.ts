@@ -56,16 +56,18 @@ const config: Config = {
           600: '#C7912F',
         },
       },
+      // Estilo Apple: en Mac/iPhone se usa SF Pro del sistema; en el resto, Inter.
       fontFamily: {
-        sans: ['var(--font-sans)', 'ui-sans-serif', 'system-ui', 'sans-serif'],
-        display: ['var(--font-display)', 'var(--font-sans)', 'sans-serif'],
+        sans: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Text"', 'var(--font-sans)', 'system-ui', 'sans-serif'],
+        display: ['-apple-system', 'BlinkMacSystemFont', '"SF Pro Display"', 'var(--font-sans)', 'system-ui', 'sans-serif'],
       },
       fontSize: {
-        'display-lg': ['clamp(2.5rem, 5.8vw, 4rem)', { lineHeight: '0.98', letterSpacing: '-0.035em', fontWeight: '700' }],
-        'display-md': ['clamp(2rem, 4.6vw, 3.25rem)', { lineHeight: '1.04', letterSpacing: '-0.03em', fontWeight: '700' }],
-        'display-sm': ['clamp(1.5rem, 3vw, 2.125rem)', { lineHeight: '1.12', letterSpacing: '-0.02em', fontWeight: '650' }],
-        lede: ['clamp(1.0625rem, 1.6vw, 1.25rem)', { lineHeight: '1.55', letterSpacing: '-0.011em' }],
-        eyebrow: ['0.75rem', { lineHeight: '1', letterSpacing: '0.14em', fontWeight: '600' }],
+        'display-xl': ['clamp(2.75rem, 7.4vw, 5.5rem)', { lineHeight: '1.02', letterSpacing: '-0.035em', fontWeight: '700' }],
+        'display-lg': ['clamp(2.5rem, 5.8vw, 4rem)', { lineHeight: '1.04', letterSpacing: '-0.03em', fontWeight: '700' }],
+        'display-md': ['clamp(2rem, 4.8vw, 3.5rem)', { lineHeight: '1.07', letterSpacing: '-0.028em', fontWeight: '700' }],
+        'display-sm': ['clamp(1.5rem, 3vw, 2.25rem)', { lineHeight: '1.12', letterSpacing: '-0.022em', fontWeight: '650' }],
+        lede: ['clamp(1.125rem, 1.8vw, 1.375rem)', { lineHeight: '1.45', letterSpacing: '-0.012em' }],
+        eyebrow: ['clamp(1rem, 1.4vw, 1.125rem)', { lineHeight: '1.3', letterSpacing: '-0.01em', fontWeight: '600' }],
       },
       spacing: {
         'gutter': '1.25rem',

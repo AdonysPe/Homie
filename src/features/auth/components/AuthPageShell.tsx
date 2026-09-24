@@ -1,15 +1,25 @@
 import Link from 'next/link';
 import type { ReactNode } from 'react';
 
-import { LockIcon } from '@/components/icons';
+import { ArrowLeftIcon, LockIcon } from '@/components/icons';
 import { BrandMark } from '@/features/home/components/BrandMark';
 import { SITE } from '@/lib/site';
 
-/** Pantalla de cuenta: foco total en el formulario, sin distracciones. */
-export function AuthPageShell({ children }: { children: ReactNode }) {
+/**
+ * Pantalla de cuenta: foco total en el formulario, con una salida siempre visible.
+ * `backHref` vuelve a donde estaba la persona (la ficha, el formulario…) o al inicio.
+ */
+export function AuthPageShell({ children, backHref = '/' }: { children: ReactNode; backHref?: string }) {
   return (
-    <div className="warm-grid flex min-h-[100svh] flex-col">
-      <header className="shell flex h-16 items-center">
+    <div className="flex min-h-[100svh] flex-col bg-cream-100">
+      <header className="shell relative flex h-14 items-center justify-center">
+        <Link
+          href={backHref}
+          className="absolute left-gutter flex items-center gap-1 rounded-pill py-1.5 pr-2 text-[0.95rem] font-medium text-clay-600 transition-colors hover:text-clay-700 sm:left-8"
+        >
+          <ArrowLeftIcon size={18} />
+          Volver
+        </Link>
         <Link href="/" aria-label={`${SITE.name}, inicio`}>
           <BrandMark />
         </Link>

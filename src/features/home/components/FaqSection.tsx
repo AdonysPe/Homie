@@ -19,12 +19,12 @@ const ACCORDION_ITEMS = FAQ_ITEMS.map((item) => ({
 
 export function FaqSection() {
   return (
-    <section id="preguntas" className="scroll-mt-20 bg-cream-200/70 py-section">
+    <section id="preguntas" className="scroll-mt-14 bg-cream-100 py-section">
       <div className="shell grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:gap-14">
         <Reveal>
           <SectionHeading
             eyebrow="Tranquilidad"
-            title="Lo que casi todos preguntan"
+            title="Lo que casi todos preguntan."
             description="Tomar esta decisión ya es difícil. El resto lo hacemos simple."
           />
         </Reveal>

@@ -2,8 +2,8 @@
 
 import { motion, useScroll, useTransform } from 'framer-motion';
 
-import { Button } from '@/components/ui/Button';
 import { AccountMenu, type AccountSummary } from '@/features/auth/components/AccountMenu';
+import { SITE } from '@/lib/site';
 import { scrollToSection } from '@/lib/scroll';
 import { BrandMark } from './BrandMark';
 
@@ -13,56 +13,50 @@ const NAV_LINKS = [
   { id: 'preguntas', label: 'Preguntas' },
 ];
 
+/**
+ * Barra de navegación estilo apple.com: baja, translúcida (vidrio esmerilado),
+ * enlaces en texto chico y una línea fina que aparece al hacer scroll.
+ */
 export function SiteHeader({ account }: { account: AccountSummary | null }) {
-  const { scrollY, scrollYProgress } = useScroll();
-  const borderOpacity = useTransform(scrollY, [0, 90], [0, 1]);
-  const background = useTransform(
-    scrollY,
-    [0, 90],
-    ['rgba(251,247,242,0)', 'rgba(251,247,242,0.86)'],
-  );
+  const { scrollY } = useScroll();
+  const borderOpacity = useTransform(scrollY, [0, 40], [0, 1]);
 
   return (
-    <motion.header
-      style={{ background }}
-      className="fixed inset-x-0 top-0 z-40 backdrop-blur-md"
-    >
+    <header className="fixed inset-x-0 top-0 z-40 bg-white/75 backdrop-blur-xl backdrop-saturate-150">
       <motion.div
         style={{ opacity: borderOpacity }}
-        className="absolute inset-x-0 bottom-0 h-px bg-cream-300"
-      />
-
-      {/* Cuánto falta para llegar al final de la página. */}
-      <motion.div
-        style={{ scaleX: scrollYProgress }}
-        className="absolute inset-x-0 bottom-0 h-[2px] origin-left bg-clay-500"
+        className="absolute inset-x-0 bottom-0 h-px bg-ink-900/10"
         aria-hidden
       />
 
-      <div className="shell flex h-16 items-center justify-between gap-4">
-        <a href="#hero" aria-label="Homie, inicio">
+      <div className="shell flex h-14 items-center justify-between gap-4">
+        <a href="#hero" aria-label={`${SITE.name}, inicio`} className="shrink-0">
           <BrandMark />
         </a>
 
-        <nav className="hidden items-center gap-1 md:flex" aria-label="Secciones">
+        <nav className="hidden items-center gap-7 md:flex" aria-label="Secciones">
           {NAV_LINKS.map((link) => (
             <a
               key={link.id}
               href={`#${link.id}`}
-              className="rounded-pill px-3.5 py-2 text-sm font-medium text-ink-700 transition-colors hover:bg-cream-200 hover:text-ink-900"
+              className="text-[0.8125rem] text-ink-700 transition-colors hover:text-ink-900"
             >
               {link.label}
             </a>
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
-          <Button size="sm" onClick={() => scrollToSection('publicar')} className="hidden sm:inline-flex">
-            Publicar a mi mascota
-          </Button>
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={() => scrollToSection('publicar')}
+            className="hidden rounded-pill bg-clay-500 px-3.5 py-1.5 text-[0.8125rem] font-medium text-white transition-colors hover:bg-clay-600 sm:block"
+          >
+            Publicar
+          </button>
           <AccountMenu account={account} />
         </div>
       </div>
-    </motion.header>
+    </header>
   );
 }

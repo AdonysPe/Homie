@@ -21,7 +21,7 @@ export default async function SignUpPage({
   if (await getCurrentUser()) redirect(returnTo);
 
   return (
-    <AuthPageShell>
+    <AuthPageShell backHref={returnTo}>
       <AuthForm mode="registro" returnTo={returnTo} />
     </AuthPageShell>
   );

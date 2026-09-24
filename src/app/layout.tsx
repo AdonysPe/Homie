@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from 'next';
-import { Inter, Plus_Jakarta_Sans } from 'next/font/google';
+import { Inter } from 'next/font/google';
 
 import { MotionProvider } from '@/components/MotionProvider';
 import { Toaster } from '@/components/ui/Toast';
@@ -9,13 +9,6 @@ import './globals.css';
 const inter = Inter({
   subsets: ['latin'],
   variable: '--font-sans',
-  display: 'swap',
-});
-
-const jakarta = Plus_Jakarta_Sans({
-  subsets: ['latin'],
-  weight: ['600', '700'],
-  variable: '--font-display',
   display: 'swap',
 });
 
@@ -46,7 +39,7 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="es" className={`${inter.variable} ${jakarta.variable}`}>
+    <html lang="es" className={inter.variable}>
       <body>
         <a
           href="#contenido"

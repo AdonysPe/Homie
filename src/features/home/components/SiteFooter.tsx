@@ -25,22 +25,22 @@ const LEGAL_LINKS = [
 export function SiteFooter() {
   return (
     // pb extra en mobile: la barra flotante de publicación no debe tapar el cierre.
-    <footer className="border-t border-cream-300 bg-cream-100 pb-28 pt-12 sm:pb-12">
+    <footer className="border-t border-ink-900/10 bg-cream-100 pb-28 pt-10 sm:pb-10">
       <div className="shell grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
         <div className="flex flex-col gap-3">
           <BrandMark />
-          <p className="max-w-[22rem] text-sm text-ink-500">
+          <p className="max-w-[22rem] text-xs leading-relaxed text-ink-500">
             Ayudamos a que cada mascota llegue a un buen hogar, sin juzgar a quien la entrega.
           </p>
         </div>
 
         <nav aria-label="Secciones del sitio" className="flex flex-col gap-2">
-          <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-ink-400">Secciones</h2>
+          <h2 className="text-xs font-semibold text-ink-900">Secciones</h2>
           {SECTION_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm text-ink-700 transition-colors hover:text-clay-600"
+              className="text-xs text-ink-500 transition-colors hover:text-ink-900 hover:underline"
             >
               {link.label}
             </Link>
@@ -48,12 +48,12 @@ export function SiteFooter() {
         </nav>
 
         <nav aria-label="Legales" className="flex flex-col gap-2">
-          <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-ink-400">Legales</h2>
+          <h2 className="text-xs font-semibold text-ink-900">Legales</h2>
           {LEGAL_LINKS.map((link) => (
             <Link
               key={link.href}
               href={link.href}
-              className="text-sm text-ink-700 transition-colors hover:text-clay-600"
+              className="text-xs text-ink-500 transition-colors hover:text-ink-900 hover:underline"
             >
               {link.label}
             </Link>
@@ -61,14 +61,14 @@ export function SiteFooter() {
         </nav>
 
         <nav aria-label="Redes sociales" className="flex flex-col gap-2">
-          <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-ink-400">Seguinos</h2>
+          <h2 className="text-xs font-semibold text-ink-900">Seguinos</h2>
           {SOCIAL_LINKS.map((link) => (
             <a
               key={link.label}
               href={link.href}
               target="_blank"
               rel="noreferrer noopener"
-              className="text-sm text-ink-700 transition-colors hover:text-clay-600"
+              className="text-xs text-ink-500 transition-colors hover:text-ink-900 hover:underline"
             >
               {link.label}
             </a>
@@ -76,21 +76,21 @@ export function SiteFooter() {
         </nav>
 
         <div className="flex flex-col gap-2">
-          <h2 className="text-xs font-bold uppercase tracking-[0.12em] text-ink-400">Contacto</h2>
+          <h2 className="text-xs font-semibold text-ink-900">Contacto</h2>
           <a
             href={`mailto:${SITE.contactEmail}`}
-            className="text-sm text-ink-700 transition-colors hover:text-clay-600"
+            className="text-xs text-ink-500 transition-colors hover:text-ink-900 hover:underline"
           >
             {SITE.contactEmail}
           </a>
-          <p className="flex items-start gap-1.5 text-sm text-ink-500">
+          <p className="flex items-start gap-1.5 text-xs text-ink-500">
             <MapPinIcon size={16} className="mt-0.5 shrink-0 text-sage-600" />
             Argentina · Córdoba, Buenos Aires, Rosario y alrededores
           </p>
         </div>
       </div>
 
-      <div className="shell mt-10 flex flex-col gap-2 border-t border-cream-300 pt-6 text-xs text-ink-400 sm:flex-row sm:items-center sm:justify-between">
+      <div className="shell mt-8 flex flex-col gap-2 border-t border-ink-900/10 pt-5 text-xs text-ink-400 sm:flex-row sm:items-center sm:justify-between">
         <p>© {new Date().getFullYear()} {SITE.name}. Hecho con cuidado.</p>
         <p>Publicar es gratis y siempre lo va a ser.</p>
       </div>
