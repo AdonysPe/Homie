@@ -38,26 +38,35 @@ export function PetCard({ listing, isHighlighted = false, priority = false }: Pe
     >
       <div className="relative aspect-[4/5] overflow-hidden bg-cream-200">
         {listing.photoUrl ? (
-          isLocalPreview ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img
-              src={listing.photoUrl}
-              alt={listing.photoAlt}
-              className="h-full w-full object-cover transition-transform duration-500 ease-soft group-hover:scale-[1.04]"
-            />
-          ) : (
-            <Image
-              src={listing.photoUrl}
-              alt={listing.photoAlt}
-              // Las fotos subidas ya llegan comprimidas y se sirven con caché inmutable.
-              unoptimized={listing.photoUrl.startsWith('/api/fotos/')}
-              fill
-              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              priority={priority}
-              loading={priority ? undefined : 'lazy'}
-              className="object-cover transition-transform duration-500 ease-soft group-hover:scale-[1.04]"
-            />
-          )
+          // La foto se asienta con un zoom suave al entrar en pantalla (una sola vez).
+          <motion.div
+            initial={{ scale: 1.14 }}
+            whileInView={{ scale: 1 }}
+            viewport={{ once: true, margin: '0px 0px -8% 0px' }}
+            transition={{ duration: 1.3, ease: [0.22, 1, 0.36, 1] }}
+            className="absolute inset-0"
+          >
+            {isLocalPreview ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={listing.photoUrl}
+                alt={listing.photoAlt}
+                className="h-full w-full object-cover transition-transform duration-500 ease-soft group-hover:scale-[1.04]"
+              />
+            ) : (
+              <Image
+                src={listing.photoUrl}
+                alt={listing.photoAlt}
+                // Las fotos subidas ya llegan comprimidas y se sirven con caché inmutable.
+                unoptimized={listing.photoUrl.startsWith('/api/fotos/')}
+                fill
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                priority={priority}
+                loading={priority ? undefined : 'lazy'}
+                className="object-cover transition-transform duration-500 ease-soft group-hover:scale-[1.04]"
+              />
+            )}
+          </motion.div>
         ) : (
           <div className="flex h-full w-full items-center justify-center text-cream-400">
             <SpeciesIcon species={listing.species} size={56} />

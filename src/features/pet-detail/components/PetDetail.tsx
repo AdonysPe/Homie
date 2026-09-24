@@ -15,6 +15,7 @@ import {
   SpeciesIcon,
   SyringeIcon,
 } from '@/components/icons';
+import { ScrollZoomImage } from '@/components/motion/ScrollZoomImage';
 import { Badge } from '@/components/ui/Badge';
 import { VerifiedBadge } from '@/features/auth/components/VerifiedBadge';
 import {
@@ -122,23 +123,20 @@ export function PetDetail({ pet, status: petStatus, isOwner, adoptionCta }: PetD
         <div className="grid gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] lg:gap-12">
           <article className="flex flex-col gap-10">
             <div className="flex flex-col gap-3">
-              <div className="relative aspect-[4/3] overflow-hidden rounded-panel bg-cream-200 shadow-soft sm:aspect-[16/10]">
-                {pet.photoUrl ? (
-                  <Image
-                    src={pet.photoUrl}
-                    alt={pet.photoAlt}
-                    fill
-                    priority
-                    unoptimized={pet.photoUrl.startsWith('/api/fotos/')}
-                    sizes="(max-width: 1024px) 100vw, 46rem"
-                    className="object-cover"
-                  />
-                ) : (
-                  <div className="flex h-full items-center justify-center text-cream-400">
-                    <SpeciesIcon species={pet.species} size={72} />
-                  </div>
-                )}
-              </div>
+              {pet.photoUrl ? (
+                <ScrollZoomImage
+                  src={pet.photoUrl}
+                  alt={pet.photoAlt}
+                  priority
+                  unoptimized={pet.photoUrl.startsWith('/api/fotos/')}
+                  sizes="(max-width: 1024px) 100vw, 46rem"
+                  className="aspect-[4/3] rounded-panel shadow-soft sm:aspect-[16/10]"
+                />
+              ) : (
+                <div className="flex aspect-[4/3] items-center justify-center rounded-panel bg-cream-200 text-cream-400 sm:aspect-[16/10]">
+                  <SpeciesIcon species={pet.species} size={72} />
+                </div>
+              )}
 
               {pet.gallery && pet.gallery.length > 0 ? (
                 <ul className="grid grid-cols-4 gap-2" aria-label={`Más fotos de ${pet.name}`}>

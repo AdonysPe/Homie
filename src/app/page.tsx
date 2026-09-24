@@ -1,6 +1,7 @@
 import { FaqSection } from '@/features/home/components/FaqSection';
 import { HeroSection } from '@/features/home/components/HeroSection';
 import { HowItWorksSection } from '@/features/home/components/HowItWorksSection';
+import { PrivacyShowcase } from '@/features/home/components/PrivacyShowcase';
 import { RecentlyPublishedSection } from '@/features/home/components/RecentlyPublishedSection';
 import { SiteFooter } from '@/features/home/components/SiteFooter';
 import { SiteHeader } from '@/features/home/components/SiteHeader';
@@ -22,6 +23,7 @@ export default async function HomePage() {
         <HeroSection />
         <RecentlyPublishedSection />
         <HowItWorksSection />
+        <PrivacyShowcase />
         <PublishSection access={publishAccess} />
         <PetsSection listings={listings} />
         <FaqSection />
