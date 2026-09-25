@@ -8,8 +8,6 @@ import { LockIcon } from '@/components/icons';
 import { SEED_LISTINGS } from '@/features/pets/lib/pets-data';
 
 const PHOTO = SEED_LISTINGS.find((listing) => listing.id === 'seed-tomas')!;
-/** Versión grande de la foto: ocupa todo el ancho de la pantalla. */
-const PHOTO_URL = PHOTO.photoUrl!.replace(/w=\d+/, 'w=2000');
 
 /**
  * Dos recortes de la misma foto (dirección de arte, como en apple.com):
@@ -55,7 +53,9 @@ export function PrivacyShowcase() {
         className="relative h-[80svh] overflow-hidden bg-ink-900"
         aria-labelledby="privacidad-titulo"
       >
-        <Image src={PHOTO_URL} alt={PHOTO.photoAlt} fill sizes="100vw" className="object-cover opacity-60" />
+        <ShowcasePhoto />
+        {/* Sin la animación no hay velo que se anime al hacer scroll: queda uno fijo, para que el texto siga legible. */}
+        <div className="absolute inset-0 bg-gradient-to-t from-ink-900/85 via-ink-900/45 to-ink-900/20" />
         <ShowcaseCopy />
       </section>
     );
