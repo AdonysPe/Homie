@@ -10,11 +10,16 @@ export const HOME_TYPE_OPTIONS: { value: HomeType; label: string }[] = [
 export const homeTypeLabel = (value: HomeType): string =>
   HOME_TYPE_OPTIONS.find((option) => option.value === value)?.label ?? value;
 
-export const REQUEST_STATUSES = ['pendiente', 'aceptada', 'rechazada'] as const;
+/**
+ * `completada`: ambas partes confirmaron que la adopción se concretó.
+ * Recién ahí se habilitan las reseñas.
+ */
+export const REQUEST_STATUSES = ['pendiente', 'aceptada', 'rechazada', 'completada'] as const;
 export type RequestStatus = (typeof REQUEST_STATUSES)[number];
 
 export const REQUEST_STATUS_LABELS: Record<RequestStatus, string> = {
   pendiente: 'Pendiente',
   aceptada: 'Aceptada',
   rechazada: 'Rechazada',
+  completada: 'Adopción completada',
 };

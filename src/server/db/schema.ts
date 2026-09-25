@@ -1,9 +1,13 @@
+import { sql } from 'drizzle-orm';
 import {
   boolean,
+  check,
   customType,
   index,
+  integer,
   jsonb,
   pgTable,
+  primaryKey,
   text,
   timestamp,
   uniqueIndex,
@@ -19,6 +23,8 @@ import type {
   RehomingReason,
 } from '@/types/pet';
 import type { HomeType, RequestStatus } from '@/features/adoption/lib/adoption-options';
+import type { ModerationAction, UserRole } from '@/features/moderation/lib/moderation-types';
+import type { NotificationType } from '@/features/notifications/lib/notification-types';
 import type { ReportReason, ReportStatus } from '@/features/reports/lib/report-reasons';
 
 /* ------------------------------------------------------------------
@@ -34,6 +40,10 @@ export const user = pgTable('user', {
   image: text('image'),
   /** PRIVADO y opcional: nunca se muestra; solo se usa si la persona decide compartirlo. */
   phone: text('phone'),
+  /** `admin` da acceso a /admin. Se asigna a mano en la base, nunca desde la app. */
+  role: text('role').$type<UserRole>().notNull().default('user'),
+  /** Suspendido por moderación: no puede ingresar, publicar ni escribir. */
+  suspendedAt: timestamp('suspended_at', { withTimezone: true }),
   createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
 });
@@ -193,6 +203,16 @@ export const adoptionRequests = pgTable(
     contactSharedAt: timestamp('contact_shared_at', { withTimezone: true }),
     /** La carta cuenta como no leída hasta que el dador abre la solicitud. */
     isReadByOwner: boolean('is_read_by_owner').notNull().default(false),
+    /**
+     * Última pulsación de cada parte en el chat. "Escribiendo…" se muestra si es
+     * de hace menos de 5 s: vive en la base porque el servidor de SSE que lo lee
+     * puede ser otra instancia que la que recibió la pulsación.
+     */
+    ownerTypingAt: timestamp('owner_typing_at', { withTimezone: true }),
+    adopterTypingAt: timestamp('adopter_typing_at', { withTimezone: true }),
+    /** Confirmación de cada parte de que la adopción se concretó. Con las dos, pasa a `completada`. */
+    ownerConfirmedAt: timestamp('owner_confirmed_at', { withTimezone: true }),
+    adopterConfirmedAt: timestamp('adopter_confirmed_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
     updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
     lastActivityAt: timestamp('last_activity_at', { withTimezone: true }).notNull().defaultNow(),
@@ -203,6 +223,32 @@ export const adoptionRequests = pgTable(
     index('adoption_requests_owner_idx').on(table.ownerId, table.lastActivityAt),
     index('adoption_requests_adopter_idx').on(table.adopterId, table.lastActivityAt),
   ],
+);
+
+/**
+ * Fotos enviadas por el chat (la mascota, el hogar del adoptante…).
+ *
+ * PRIVADAS: a diferencia de las fotos de publicaciones, no se sirven desde una
+ * URL pública de CDN. Solo las ven los dos participantes de la solicitud
+ * (ver `src/app/api/chat/imagenes/[id]/route.ts`).
+ */
+export const chatImages = pgTable(
+  'chat_images',
+  {
+    id: text('id').primaryKey(),
+    requestId: text('request_id')
+      .notNull()
+      .references(() => adoptionRequests.id, { onDelete: 'cascade' }),
+    uploaderId: text('uploader_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    mimeType: text('mime_type').notNull(),
+    data: bytea('data').notNull(),
+    width: integer('width').notNull(),
+    height: integer('height').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('chat_images_request_idx').on(table.requestId)],
 );
 
 /** Chat interno posterior a la solicitud. */
@@ -219,8 +265,12 @@ export const messages = pgTable(
     receiverId: text('receiver_id')
       .notNull()
       .references(() => user.id, { onDelete: 'cascade' }),
-    content: text('content').notNull(),
+    /** Puede quedar vacío si el mensaje es solo una foto. */
+    content: text('content').notNull().default(''),
+    imageId: text('image_id').references(() => chatImages.id, { onDelete: 'set null' }),
     isRead: boolean('is_read').notNull().default(false),
+    /** Para el "Visto": cuándo lo abrió quien lo recibió. */
+    readAt: timestamp('read_at', { withTimezone: true }),
     createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
   },
   (table) => [
@@ -269,4 +319,123 @@ export const reports = pgTable(
     // Una persona con cuenta reporta una vez por mascota (los anónimos tienen reporterId NULL).
     uniqueIndex('reports_pet_reporter_idx').on(table.petId, table.reporterId),
   ],
+);
+
+/* ------------------------------------------------------------------
+ * Fase 4: notificaciones, reputación y moderación.
+ * ------------------------------------------------------------------ */
+
+export const notifications = pgTable(
+  'notifications',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    type: text('type').$type<NotificationType>().notNull(),
+    title: text('title').notNull(),
+    message: text('message').notNull(),
+    /** Ruta interna a la que lleva la notificación (ej. /dashboard/mensajes/…). */
+    link: text('link').notNull(),
+    /**
+     * Agrupa avisos repetidos: diez mensajes seguidos en la misma solicitud
+     * actualizan una sola notificación no leída en vez de crear diez.
+     */
+    groupKey: text('group_key'),
+    isRead: boolean('is_read').notNull().default(false),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index('notifications_user_idx').on(table.userId, table.isRead, table.createdAt),
+    index('notifications_group_idx').on(table.userId, table.groupKey),
+  ],
+);
+
+/** Suscripciones de Web Push (una por navegador y dispositivo). */
+export const pushSubscriptions = pgTable(
+  'push_subscriptions',
+  {
+    id: text('id').primaryKey(),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    endpoint: text('endpoint').notNull().unique(),
+    p256dh: text('p256dh').notNull(),
+    auth: text('auth').notNull(),
+    userAgent: text('user_agent'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('push_subscriptions_user_idx').on(table.userId)],
+);
+
+/**
+ * Reseñas entre dador y adoptante. Solo se pueden dejar sobre una solicitud
+ * `completada` (las dos partes confirmaron la adopción), una por persona.
+ */
+export const reviews = pgTable(
+  'reviews',
+  {
+    id: text('id').primaryKey(),
+    requestId: text('request_id')
+      .notNull()
+      .references(() => adoptionRequests.id, { onDelete: 'cascade' }),
+    petId: text('pet_id')
+      .notNull()
+      .references(() => pets.id, { onDelete: 'cascade' }),
+    reviewerId: text('reviewer_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    revieweeId: text('reviewee_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    rating: integer('rating').notNull(),
+    comment: text('comment').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex('reviews_request_reviewer_idx').on(table.requestId, table.reviewerId),
+    index('reviews_reviewee_idx').on(table.revieweeId, table.createdAt),
+    // Mismo rango que RATING_MIN / RATING_MAX en features/reviews/lib/review-rules.ts.
+    check('reviews_rating_range', sql`${table.rating} between 1 and 5`),
+    check('reviews_not_self', sql`${table.reviewerId} <> ${table.revieweeId}`),
+  ],
+);
+
+/** Bloqueos: si A bloquea a B, no pueden escribirse ni ver el perfil del otro. */
+export const blocks = pgTable(
+  'blocks',
+  {
+    blockerId: text('blocker_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    blockedId: text('blocked_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    primaryKey({ columns: [table.blockerId, table.blockedId] }),
+    index('blocks_blocked_idx').on(table.blockedId),
+    check('blocks_not_self', sql`${table.blockerId} <> ${table.blockedId}`),
+  ],
+);
+
+/**
+ * Registro de auditoría de moderación. Alimenta las métricas del panel
+ * (publicaciones eliminadas, usuarios suspendidos) y deja constancia de
+ * quién hizo qué. Las referencias se conservan aunque se borre el objeto.
+ */
+export const moderationActions = pgTable(
+  'moderation_actions',
+  {
+    id: text('id').primaryKey(),
+    adminId: text('admin_id').references(() => user.id, { onDelete: 'set null' }),
+    action: text('action').$type<ModerationAction>().notNull(),
+    reportId: text('report_id').references(() => reports.id, { onDelete: 'set null' }),
+    petId: text('pet_id').references(() => pets.id, { onDelete: 'set null' }),
+    targetUserId: text('target_user_id').references(() => user.id, { onDelete: 'set null' }),
+    note: text('note'),
+    createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [index('moderation_actions_created_idx').on(table.action, table.createdAt)],
 );
