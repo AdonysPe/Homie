@@ -2,18 +2,23 @@
 
 import { randomUUID } from 'node:crypto';
 
-import { and, count, eq, gt, isNull } from 'drizzle-orm';
+import { and, count, eq, gt, isNull, lt, or } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
 
-import { replySchema, type ReplyInput } from '@/features/messaging/lib/message-schema';
+import { chatImageUrl, type ChatMessage } from '@/features/chat/lib/chat-types';
+import { chatMessageSchema } from '@/features/messaging/lib/message-schema';
 import { actionError, actionOk, type ActionResult } from '@/lib/action-result';
+import { getChatParticipant } from '../chat';
 import { getDb, schema } from '../db';
+import { readUploadedImage } from '../image-upload';
 import { requireVerifiedUser } from '../session';
 
-const { adoptionRequests, messages } = schema;
+const { adoptionRequests, chatImages, messages } = schema;
 
-/** Anti-spam simple: mensajes por usuario por hora. */
-const MESSAGES_PER_HOUR = 30;
+/** Anti-spam: mensajes por usuario por hora (una conversación real queda muy por debajo). */
+const MESSAGES_PER_HOUR = 120;
+/** No se reescribe "escribiendo" más de una vez por este intervalo, aunque el cliente insista. */
+const TYPING_MIN_INTERVAL_MS = 2_000;
 
 async function isRateLimited(userId: string): Promise<boolean> {
   const db = await getDb();
@@ -25,44 +30,118 @@ async function isRateLimited(userId: string): Promise<boolean> {
   return (row?.value ?? 0) >= MESSAGES_PER_HOUR;
 }
 
-/** Mensaje en el chat de una solicitud (familia o adoptante). */
-export async function sendReply(input: ReplyInput): Promise<ActionResult<{ id: string; createdAt: string }>> {
+/**
+ * Envía un mensaje (texto, foto o ambos). Recibe `FormData` porque puede llevar
+ * un archivo: `requestId`, `content`, y opcionalmente `image` + `imageWidth`/`imageHeight`
+ * (la foto ya viene comprimida y sin EXIF desde el navegador).
+ *
+ * Devuelve el mensaje ya serializado: el cliente reemplaza su versión optimista
+ * con esta, y si el stream lo entrega también, se descarta por id.
+ */
+export async function sendChatMessage(formData: FormData): Promise<ActionResult<ChatMessage>> {
   const auth = await requireVerifiedUser();
   if (!auth.ok) return auth;
   const { user } = auth;
 
-  const parsed = replySchema.safeParse(input);
+  const parsed = chatMessageSchema.safeParse({
+    requestId: formData.get('requestId'),
+    content: formData.get('content') ?? '',
+    imageWidth: formData.get('imageWidth') ?? undefined,
+    imageHeight: formData.get('imageHeight') ?? undefined,
+  });
   if (!parsed.success) return actionError(parsed.error.issues[0].message, 'invalid');
-  const { requestId, content } = parsed.data;
+  const { requestId, content, imageWidth, imageHeight } = parsed.data;
 
-  const db = await getDb();
-  const [request] = await db
-    .select({ id: adoptionRequests.id, ownerId: adoptionRequests.ownerId, adopterId: adoptionRequests.adopterId })
-    .from(adoptionRequests)
-    .where(eq(adoptionRequests.id, requestId))
-    .limit(1);
+  const file = formData.get('image');
+  const hasImage = file instanceof File && file.size > 0;
+  if (!content && !hasImage) return actionError('Escribe un mensaje o adjunta una foto.', 'invalid');
 
-  const isParticipant = request && (request.ownerId === user.id || request.adopterId === user.id);
-  if (!isParticipant) return actionError('No encontramos esta solicitud.', 'forbidden');
+  const participant = await getChatParticipant(requestId, user.id);
+  if (!participant) return actionError('No encontramos esta solicitud.', 'forbidden');
   if (await isRateLimited(user.id)) {
     return actionError('Enviaste muchos mensajes en poco tiempo. Prueba de nuevo en un rato.', 'rate-limited');
   }
 
-  const now = new Date();
-  const id = randomUUID();
-  const receiverId = request.ownerId === user.id ? request.adopterId : request.ownerId;
+  let image: { data: Uint8Array; mimeType: string; width: number; height: number } | null = null;
+  if (hasImage) {
+    const upload = await readUploadedImage(file);
+    if (!upload || !imageWidth || !imageHeight) {
+      return actionError('La foto no es válida o pesa demasiado. Prueba con otra.', 'invalid');
+    }
+    image = { ...upload, width: imageWidth, height: imageHeight };
+  }
 
+  const now = new Date();
+  const messageId = randomUUID();
+  const imageId = image ? randomUUID() : null;
+  const clearTyping = participant.role === 'owner' ? { ownerTypingAt: null } : { adopterTypingAt: null };
+
+  const db = await getDb();
   await db.transaction(async (tx) => {
-    await tx.insert(messages).values({ id, requestId, senderId: user.id, receiverId, content, createdAt: now });
+    if (image && imageId) {
+      await tx.insert(chatImages).values({
+        id: imageId,
+        requestId,
+        uploaderId: user.id,
+        mimeType: image.mimeType,
+        data: image.data,
+        width: image.width,
+        height: image.height,
+        createdAt: now,
+      });
+    }
+    await tx.insert(messages).values({
+      id: messageId,
+      requestId,
+      senderId: user.id,
+      receiverId: participant.counterpartId,
+      content,
+      imageId,
+      createdAt: now,
+    });
+    // Enviar apaga el "escribiendo…" en el acto, sin esperar a que venza.
     await tx
       .update(adoptionRequests)
-      .set({ lastActivityAt: now, updatedAt: now })
+      .set({ lastActivityAt: now, updatedAt: now, ...clearTyping })
       .where(eq(adoptionRequests.id, requestId));
   });
 
+  // El chat se actualiza por el stream; esto refresca la bandeja y los contadores.
   revalidatePath('/dashboard');
-  revalidatePath(`/dashboard/mensajes/${requestId}`);
-  return actionOk({ id, createdAt: now.toISOString() });
+
+  return actionOk({
+    id: messageId,
+    content,
+    image: image && imageId ? { url: chatImageUrl(imageId), width: image.width, height: image.height } : null,
+    createdAt: now.toISOString(),
+    readAt: null,
+    isMine: true,
+  });
+}
+
+/**
+ * "Estoy escribiendo". El cliente lo llama como mucho cada 2,5 s mientras teclea;
+ * el `where` además ignora llamadas demasiado seguidas.
+ */
+export async function setTyping(requestId: string): Promise<void> {
+  const auth = await requireVerifiedUser();
+  if (!auth.ok) return;
+
+  const participant = await getChatParticipant(requestId, auth.user.id);
+  if (!participant) return;
+
+  const now = new Date();
+  const column = participant.role === 'owner' ? adoptionRequests.ownerTypingAt : adoptionRequests.adopterTypingAt;
+  const db = await getDb();
+  await db
+    .update(adoptionRequests)
+    .set(participant.role === 'owner' ? { ownerTypingAt: now } : { adopterTypingAt: now })
+    .where(
+      and(
+        eq(adoptionRequests.id, requestId),
+        or(isNull(column), lt(column, new Date(now.getTime() - TYPING_MIN_INTERVAL_MS))),
+      ),
+    );
 }
 
 /** Marca como leído lo recibido en una solicitud (y la carta, si la abre la familia). */
@@ -72,16 +151,25 @@ export async function markRequestRead(requestId: string): Promise<ActionResult> 
   const userId = auth.user.id;
 
   const db = await getDb();
-  await db
+  const now = new Date();
+  const updated = await db
     .update(messages)
-    .set({ isRead: true })
-    .where(and(eq(messages.requestId, requestId), eq(messages.receiverId, userId), eq(messages.isRead, false)));
-  await db
+    .set({ isRead: true, readAt: now })
+    .where(and(eq(messages.requestId, requestId), eq(messages.receiverId, userId), eq(messages.isRead, false)))
+    .returning({ id: messages.id });
+  const openedLetter = await db
     .update(adoptionRequests)
     .set({ isReadByOwner: true })
-    .where(and(eq(adoptionRequests.id, requestId), eq(adoptionRequests.ownerId, userId)));
+    .where(
+      and(
+        eq(adoptionRequests.id, requestId),
+        eq(adoptionRequests.ownerId, userId),
+        eq(adoptionRequests.isReadByOwner, false),
+      ),
+    )
+    .returning({ id: adoptionRequests.id });
 
-  revalidatePath('/dashboard');
+  if (updated.length > 0 || openedLetter.length > 0) revalidatePath('/dashboard');
   return actionOk(null);
 }
 

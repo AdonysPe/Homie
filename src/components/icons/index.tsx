@@ -232,3 +232,19 @@ export const EyeOffIcon = (props: LineIconProps) => (
     <path d="M9.9 10a2.8 2.8 0 0 0 4 4" />
   </LineIcon>
 );
+
+/** Doble check del "Visto", como en las apps de mensajería. */
+export const CheckCheckIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <path d="m2.5 12.5 4 4 8-9" />
+    <path d="m11.5 15.5 1 1 8-9" />
+  </LineIcon>
+);
+
+export const ImageIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <rect x="3.5" y="4.5" width="17" height="15" rx="2.6" />
+    <circle cx="9" cy="9.8" r="1.6" />
+    <path d="m20.5 15.5-4.6-4.6a1.2 1.2 0 0 0-1.7 0L6 19.5" />
+  </LineIcon>
+);

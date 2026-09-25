@@ -54,7 +54,7 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
           </div>
         ) : null}
 
-        <ThreadView thread={thread} hasUnread={thread.hasUnread && user.emailVerified} />
+        <ThreadView thread={thread} canWrite={user.emailVerified} />
       </main>
     </>
   );

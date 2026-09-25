@@ -77,3 +77,39 @@ export function formatMessageTime(isoDate: string): string {
 export function formatShortDate(isoDate: string): string {
   return shortDate.format(new Date(isoDate));
 }
+
+const relativeLong = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
+const weekday = new Intl.DateTimeFormat('es-PE', { weekday: 'long', timeZone: SITE.timeZone });
+const fullDateTime = new Intl.DateTimeFormat('es-PE', {
+  weekday: 'long',
+  day: 'numeric',
+  month: 'long',
+  hour: '2-digit',
+  minute: '2-digit',
+  timeZone: SITE.timeZone,
+});
+
+/**
+ * Tiempo relativo del chat, al estilo de Mensajes:
+ * "ahora" · "hace 2 minutos" · "hace 3 horas" · "ayer" · "el martes" · "12 sept."
+ * Los días se cuentan en hora de Lima, no en la del servidor.
+ */
+export function formatChatTimestamp(isoDate: string, now: number = Date.now()): string {
+  const date = new Date(isoDate);
+  const diff = now - date.getTime();
+
+  if (diff < 45_000) return 'ahora';
+  if (diff < 3_600_000) return relativeLong.format(-Math.max(1, Math.round(diff / 60_000)), 'minute');
+
+  const nowDate = new Date(now);
+  const day = dayKey.format(date);
+  if (day === dayKey.format(nowDate)) return relativeLong.format(-Math.round(diff / 3_600_000), 'hour');
+  if (day === dayKey.format(new Date(now - 86_400_000))) return 'ayer';
+  if (diff < 6 * 86_400_000) return `el ${weekday.format(date)}`;
+  return shortDate.format(date);
+}
+
+/** "jueves, 25 de septiembre, 14:32": para el `title` del tiempo relativo. */
+export function formatFullDateTime(isoDate: string): string {
+  return fullDateTime.format(new Date(isoDate));
+}

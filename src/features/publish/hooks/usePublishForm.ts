@@ -9,7 +9,7 @@ import { publishPet } from '@/server/actions/publish';
 import { PUBLISH_DEFAULT_VALUES } from '../lib/publish-defaults';
 import { publishSchema } from '../lib/publish-schema';
 import { PUBLISH_STEPS, TOTAL_PUBLISH_STEPS } from '../lib/publish-steps';
-import { resizeImage } from '../lib/resize-image';
+import { resizeImage } from '@/lib/resize-image';
 import type { PublishFormValues } from '../types';
 
 export type PublishStatus = 'editing' | 'sending' | 'published';
@@ -63,7 +63,7 @@ export function usePublishForm() {
     formData.set('payload', JSON.stringify(fields));
     try {
       const resized = await Promise.all(photos.map((photo) => resizeImage(photo.file)));
-      resized.forEach((blob, index) => formData.append('photos', blob, `foto-${index + 1}.jpg`));
+      resized.forEach(({ blob }, index) => formData.append('photos', blob, `foto-${index + 1}.jpg`));
     } catch {
       setStatus('editing');
       toast.error('No pudimos procesar una de las fotos. Prueba con otra (JPG o PNG).');

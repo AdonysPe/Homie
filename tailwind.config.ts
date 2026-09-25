@@ -105,6 +105,11 @@ const config: Config = {
           '100%': { opacity: '0.15' },
         },
         // Columnas del muro de fotos: el contenido está duplicado, así que -50% cierra el bucle.
+        // Puntos de "escribiendo…": suben y se encienden en ola.
+        'typing-dot': {
+          '0%, 60%, 100%': { transform: 'translateY(0)', opacity: '0.35' },
+          '30%': { transform: 'translateY(-3px)', opacity: '1' },
+        },
         'wall-up': {
           from: { transform: 'translate3d(0, 0, 0)' },
           to: { transform: 'translate3d(0, -50%, 0)' },
@@ -118,6 +123,7 @@ const config: Config = {
         'fade-up': 'fade-up 0.5s cubic-bezier(0.22, 1, 0.36, 1) both',
         'pulse-ring': 'pulse-ring 2.4s cubic-bezier(0.22, 1, 0.36, 1) infinite',
         'spinner-fade': 'spinner-fade 0.8s linear infinite',
+        'typing-dot': 'typing-dot 1.2s ease-in-out infinite',
         'wall-up': 'wall-up 60s linear infinite',
         'wall-down': 'wall-down 60s linear infinite',
       },

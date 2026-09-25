@@ -1,91 +1,36 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { useEffect, useOptimistic, useRef, useState, useTransition, type KeyboardEvent } from 'react';
+import { useState, useTransition } from 'react';
 
-import { LockIcon, SendIcon, ShieldIcon, WhatsAppIcon } from '@/components/icons';
+import { LockIcon, ShieldIcon, WhatsAppIcon } from '@/components/icons';
 import { Button } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
-import { Spinner } from '@/components/ui/Spinner';
 import { toast } from '@/components/ui/Toast';
-import { cn } from '@/lib/cn';
-import { formatMessageTime, formatShortDate } from '@/lib/format';
+import { formatShortDate } from '@/lib/format';
 import { homeTypeLabel, REQUEST_STATUS_LABELS } from '@/features/adoption/lib/adoption-options';
-import { markRequestRead, sendReply, shareContact } from '@/server/actions/messages';
-import type { Thread, ThreadMessage } from '@/server/messages';
-import { MESSAGE_MAX } from '../lib/message-schema';
+import { ChatWindow } from '@/features/chat/components/ChatWindow';
+import { shareContact } from '@/server/actions/messages';
+import type { Thread } from '@/server/messages';
 
-type OptimisticMessage = ThreadMessage & { pending?: boolean };
-
-export function ThreadView({ thread, hasUnread }: { thread: Thread; hasUnread: boolean }) {
-  const router = useRouter();
-  const listEndRef = useRef<HTMLDivElement>(null);
-  const [messages, addOptimistic] = useOptimistic<OptimisticMessage[], OptimisticMessage>(
-    thread.messages,
-    (current, message) => [...current, message],
-  );
-
-  // Al abrir el hilo, lo recibido se marca como leído (y se actualiza el contador del header).
-  useEffect(() => {
-    if (!hasUnread) return;
-    void markRequestRead(thread.id).then(() => router.refresh());
-  }, [hasUnread, router, thread.id]);
-
-  // Siempre mostrar lo último, como en cualquier app de mensajes.
-  useEffect(() => {
-    listEndRef.current?.scrollIntoView({ block: 'end' });
-  }, [messages.length]);
-
+/**
+ * Hilo de una solicitud: aviso de privacidad, la carta de presentación fija arriba
+ * y debajo el chat en tiempo real.
+ */
+export function ThreadView({ thread, canWrite }: { thread: Thread; canWrite: boolean }) {
   return (
     <div className="flex flex-col gap-6">
       <PrivacyBanner thread={thread} />
 
       <RequestCard thread={thread} />
 
-      <ol className="flex flex-col gap-2" aria-label={`Conversación con ${thread.counterpart}`}>
-        {messages.map((message, index) => {
-          const previous = messages[index - 1];
-          const showDay =
-            !previous || formatShortDate(previous.createdAt) !== formatShortDate(message.createdAt);
-          return (
-            <li key={message.id} className="flex flex-col">
-              {showDay ? (
-                <p className="my-3 text-center text-xs font-medium text-ink-400">{formatShortDate(message.createdAt)}</p>
-              ) : null}
-              <div className={cn('flex flex-col gap-1', message.isMine ? 'items-end' : 'items-start')}>
-                <p className="sr-only">{message.isMine ? 'Tú' : thread.counterpart}:</p>
-                <div
-                  className={cn(
-                    'max-w-[85%] whitespace-pre-wrap break-words rounded-[1.25rem] px-4 py-2.5 text-[0.95rem] leading-relaxed sm:max-w-[75%]',
-                    message.isMine
-                      ? 'rounded-br-md bg-clay-500 text-white'
-                      : 'rounded-bl-md border border-cream-300 bg-white text-ink-900',
-                    message.pending && 'opacity-60',
-                  )}
-                >
-                  {message.content}
-                </div>
-                <span className="px-1 text-[0.7rem] text-ink-400">
-                  {message.pending ? 'Enviando…' : formatMessageTime(message.createdAt)}
-                </span>
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-      <div ref={listEndRef} />
-
-      <Composer
+      <ChatWindow
         requestId={thread.id}
-        onOptimisticSend={(content) =>
-          addOptimistic({
-            id: `pending-${Date.now()}`,
-            content,
-            createdAt: new Date().toISOString(),
-            isMine: true,
-            pending: true,
-          })
-        }
+        counterpartName={thread.counterpart}
+        initialMessages={thread.messages}
+        serverNow={thread.serverNow}
+        hasUnread={thread.hasUnread}
+        canWrite={canWrite}
       />
     </div>
   );
@@ -207,74 +152,5 @@ function ShareContactCard({ thread }: { thread: Thread }) {
         </div>
       </Sheet>
     </div>
-  );
-}
-
-function Composer({
-  requestId,
-  onOptimisticSend,
-}: {
-  requestId: string;
-  onOptimisticSend: (content: string) => void;
-}) {
-  const router = useRouter();
-  const [content, setContent] = useState('');
-  const [isPending, startTransition] = useTransition();
-  const trimmed = content.trim();
-
-  const send = () => {
-    if (!trimmed || isPending) return;
-    const draft = content;
-    setContent('');
-    startTransition(async () => {
-      onOptimisticSend(trimmed);
-      const result = await sendReply({ requestId, content: trimmed });
-      if (!result.ok) {
-        setContent(draft);
-        toast.error(result.error);
-        return;
-      }
-      router.refresh();
-    });
-  };
-
-  // ⌘/Ctrl + Enter envía; Enter solo agrega una línea (en móvil no hay otra forma de hacerlo).
-  const onKeyDown = (event: KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.key === 'Enter' && (event.metaKey || event.ctrlKey)) {
-      event.preventDefault();
-      send();
-    }
-  };
-
-  return (
-    <form
-      onSubmit={(event) => {
-        event.preventDefault();
-        send();
-      }}
-      className="sticky bottom-0 -mx-1 flex items-end gap-2 rounded-t-[1.5rem] bg-cream-100/90 px-1 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 backdrop-blur-xl"
-    >
-      <label htmlFor="reply" className="sr-only">
-        Escribe tu respuesta
-      </label>
-      <textarea
-        id="reply"
-        value={content}
-        onChange={(event) => setContent(event.target.value)}
-        onKeyDown={onKeyDown}
-        rows={1}
-        maxLength={MESSAGE_MAX}
-        placeholder="Escribe un mensaje"
-        className="max-h-40 min-h-[2.875rem] flex-1 resize-none rounded-[1.4rem] border border-cream-400 bg-white px-4 py-3 text-[0.95rem] leading-snug [field-sizing:content] placeholder:text-ink-300"
-      />
-      <button
-        type="submit"
-        disabled={!trimmed || isPending}
-        aria-label="Enviar"
-        className="flex h-[2.875rem] w-[2.875rem] shrink-0 items-center justify-center rounded-full bg-clay-500 text-white transition-all hover:bg-clay-600 disabled:bg-cream-400"
-      >
-        {isPending ? <Spinner size={18} /> : <SendIcon size={20} strokeWidth={2.2} />}
-      </button>
-    </form>
   );
 }

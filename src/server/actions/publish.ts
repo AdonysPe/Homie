@@ -10,20 +10,8 @@ import { actionError, actionOk, type ActionResult } from '@/lib/action-result';
 import { formatAge, slugify } from '@/lib/format';
 import { speciesHasSize, speciesLabel } from '@/lib/pet-catalog';
 import { getDb, schema } from '../db';
+import { readUploadedImage } from '../image-upload';
 import { requireVerifiedUser } from '../session';
-
-/** Las fotos llegan ya redimensionadas desde el navegador: esto es un tope de seguridad. */
-const MAX_UPLOAD_BYTES = 1.5 * 1024 * 1024;
-
-/** Detecta el formato por su firma binaria: el `type` del archivo lo decide el cliente. */
-function sniffImageType(bytes: Uint8Array): string | null {
-  if (bytes[0] === 0xff && bytes[1] === 0xd8 && bytes[2] === 0xff) return 'image/jpeg';
-  if (bytes[0] === 0x89 && bytes[1] === 0x50 && bytes[2] === 0x4e && bytes[3] === 0x47) return 'image/png';
-  const riff = String.fromCharCode(...bytes.slice(0, 4));
-  const webp = String.fromCharCode(...bytes.slice(8, 12));
-  if (riff === 'RIFF' && webp === 'WEBP') return 'image/webp';
-  return null;
-}
 
 async function readPhotos(formData: FormData) {
   const files = formData.getAll('photos').filter((entry): entry is File => entry instanceof File);
@@ -33,11 +21,9 @@ async function readPhotos(formData: FormData) {
 
   const photos: { data: Uint8Array; mimeType: string }[] = [];
   for (const file of files) {
-    if (file.size > MAX_UPLOAD_BYTES) return actionError('Una de las fotos es demasiado pesada.', 'invalid');
-    const data = new Uint8Array(await file.arrayBuffer());
-    const mimeType = sniffImageType(data);
-    if (!mimeType) return actionError('Una de las fotos no es una imagen válida.', 'invalid');
-    photos.push({ data, mimeType });
+    const photo = await readUploadedImage(file);
+    if (!photo) return actionError('Una de las fotos no es una imagen válida o pesa demasiado.', 'invalid');
+    photos.push(photo);
   }
   return photos;
 }

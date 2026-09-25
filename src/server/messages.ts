@@ -1,8 +1,10 @@
 import 'server-only';
 
-import { and, asc, count, desc, eq, or, sql } from 'drizzle-orm';
+import { and, count, desc, eq, or, sql } from 'drizzle-orm';
 
 import type { HomeType, RequestStatus } from '@/features/adoption/lib/adoption-options';
+import type { ChatMessage } from '@/features/chat/lib/chat-types';
+import { listChatMessages } from './chat';
 import { getDb, schema } from './db';
 
 const { adoptionRequests, messages, pets } = schema;
@@ -142,13 +144,6 @@ export async function listInbox(userId: string): Promise<InboxGroup[]> {
   return [...all.filter((group) => group.role === 'owner'), ...all.filter((group) => group.role === 'adopter')];
 }
 
-export interface ThreadMessage {
-  id: string;
-  content: string;
-  createdAt: string;
-  isMine: boolean;
-}
-
 export interface Thread {
   id: string;
   role: RequestRole;
@@ -172,9 +167,11 @@ export interface Thread {
     value: string;
     microchipNumber: string | null;
   } | null;
-  messages: ThreadMessage[];
+  messages: ChatMessage[];
   /** Hay algo sin leer para quien mira (mensajes o la carta nueva). */
   hasUnread: boolean;
+  /** Hora del servidor al armar el hilo: el stream en vivo arranca desde acá. */
+  serverNow: string;
 }
 
 /** Devuelve el hilo solo si `userId` participa (si no, `null`: se trata como inexistente). */
@@ -214,17 +211,8 @@ export async function getThread(requestId: string, userId: string): Promise<Thre
   if (!request) return null;
 
   const role: RequestRole = request.ownerId === userId ? 'owner' : 'adopter';
-  const rows = await db
-    .select({
-      id: messages.id,
-      content: messages.content,
-      createdAt: messages.createdAt,
-      senderId: messages.senderId,
-      isUnreadForMe: sql<boolean>`${messages.receiverId} = ${userId} and ${messages.isRead} = false`,
-    })
-    .from(messages)
-    .where(eq(messages.requestId, requestId))
-    .orderBy(asc(messages.createdAt));
+  const serverNow = new Date().toISOString();
+  const chatMessages = await listChatMessages(requestId, userId);
 
   const [photo] = request.petPhotos;
   const canSeeContact = role === 'adopter' && request.contactSharedAt !== null;
@@ -257,12 +245,10 @@ export async function getThread(requestId: string, userId: string): Promise<Thre
           microchipNumber: request.microchipNumber,
         }
       : null,
-    messages: rows.map((row) => ({
-      id: row.id,
-      content: row.content,
-      createdAt: row.createdAt.toISOString(),
-      isMine: row.senderId === userId,
-    })),
-    hasUnread: rows.some((row) => row.isUnreadForMe) || (role === 'owner' && !request.isReadByOwner),
+    messages: chatMessages,
+    hasUnread:
+      chatMessages.some((message) => !message.isMine && message.readAt === null) ||
+      (role === 'owner' && !request.isReadByOwner),
+    serverNow,
   };
 }
