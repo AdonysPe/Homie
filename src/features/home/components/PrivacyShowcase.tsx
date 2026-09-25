@@ -12,6 +12,23 @@ const PHOTO = SEED_LISTINGS.find((listing) => listing.id === 'seed-tomas')!;
 const PHOTO_URL = PHOTO.photoUrl!.replace(/w=\d+/, 'w=2000');
 
 /**
+ * Dos recortes de la misma foto (dirección de arte, como en apple.com):
+ * el marco cambia de vertical (móvil) a panorámico (escritorio), así que
+ * un solo recorte centrado no sirve para los dos — en panorámico, un
+ * recorte centrado corta los ojos del perro.
+ *
+ * - Móvil/tablet: el encuadre casi original (retrato), el que ya se ve bien.
+ * - Escritorio: recorte panorámico con `crop=faces` (detección de rostro de
+ *   Unsplash/imgix), que vuelve a calcular el recorte para mantener la cara
+ *   centrada en vez de cortarla.
+ */
+const MOBILE_PHOTO_URL = PHOTO.photoUrl!.replace(/w=\d+/, 'w=1200');
+const DESKTOP_PHOTO_URL = PHOTO.photoUrl!.replace(
+  /\?.*$/,
+  '?auto=format&fit=crop&crop=faces&w=2400&h=1250&q=75',
+);
+
+/**
  * La escena clásica de apple.com: una foto enmarcada que, al hacer scroll,
  * crece hasta ocupar toda la pantalla mientras el mensaje aparece encima.
  *
@@ -52,7 +69,7 @@ export function PrivacyShowcase() {
           className="relative h-full w-full overflow-hidden bg-ink-900 will-change-transform"
         >
           <motion.div style={{ scale: photoScale }} className="absolute inset-0 will-change-transform">
-            <Image src={PHOTO_URL} alt={PHOTO.photoAlt} fill sizes="100vw" className="object-cover" />
+            <ShowcasePhoto />
           </motion.div>
           <motion.div
             style={{ opacity: veilOpacity }}
@@ -64,6 +81,28 @@ export function PrivacyShowcase() {
         </motion.div>
       </div>
     </section>
+  );
+}
+
+/** Dos <Image> superpuestas, una por punto de quiebre: solo se descarga la que se muestra. */
+function ShowcasePhoto() {
+  return (
+    <>
+      <Image
+        src={MOBILE_PHOTO_URL}
+        alt={PHOTO.photoAlt}
+        fill
+        sizes="100vw"
+        className="object-cover lg:hidden"
+      />
+      <Image
+        src={DESKTOP_PHOTO_URL}
+        alt={PHOTO.photoAlt}
+        fill
+        sizes="100vw"
+        className="hidden object-cover lg:block"
+      />
+    </>
   );
 }
 
