@@ -1,5 +1,5 @@
 /**
- * Le da acceso con contraseña a la cuenta demo (dueña de las mascotas de ejemplo).
+ * Testing para la racha Le da acceso con contraseña a la cuenta demo (dueña de las mascotas de ejemplo).
  * Si ya tenía contraseña, la reemplaza.
  *
  *   DATABASE_URL=postgres://… DEMO_PASSWORD=… npm run db:demo-user
