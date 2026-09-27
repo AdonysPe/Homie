@@ -12,7 +12,7 @@ import {
 } from '@/features/adoption/lib/adoption-schema';
 import { actionError, actionOk, type ActionResult } from '@/lib/action-result';
 import { getDb, schema } from '../db';
-import { notifyNewRequest } from '../notifications';
+import { notifyAdoptionDecision, notifyNewRequest } from '../notifications';
 import { requireVerifiedUser } from '../session';
 
 const { adoptionRequests, pets } = schema;
@@ -91,4 +91,49 @@ export async function submitAdoptionRequest(
   // Corre después de responder: un email o push lento nunca debe demorar la confirmación.
   after(() => notifyNewRequest({ ownerId: pet.ownerId, requestId, petName: pet.name, adopterName: values.adopterName }));
   return actionOk({ requestId });
+}
+
+/**
+ * La familia decide sobre una carta de presentación. Solo se puede resolver
+ * una vez: de `pendiente` a `aceptada` o `rechazada`.
+ */
+export async function respondToAdoptionRequest(
+  requestId: string,
+  decision: 'aceptada' | 'rechazada',
+): Promise<ActionResult> {
+  const auth = await requireVerifiedUser();
+  if (!auth.ok) return auth;
+
+  const db = await getDb();
+  const [request] = await db
+    .select({
+      id: adoptionRequests.id,
+      ownerId: adoptionRequests.ownerId,
+      adopterId: adoptionRequests.adopterId,
+      status: adoptionRequests.status,
+      petName: pets.name,
+    })
+    .from(adoptionRequests)
+    .innerJoin(pets, eq(pets.id, adoptionRequests.petId))
+    .where(eq(adoptionRequests.id, requestId))
+    .limit(1);
+
+  if (!request || request.ownerId !== auth.user.id) {
+    return actionError('No encontramos esta solicitud.', 'forbidden');
+  }
+  if (request.status !== 'pendiente') {
+    return actionError('Esta solicitud ya fue resuelta.', 'invalid');
+  }
+
+  await db
+    .update(adoptionRequests)
+    .set({ status: decision, updatedAt: new Date(), lastActivityAt: new Date() })
+    .where(eq(adoptionRequests.id, requestId));
+
+  revalidatePath('/dashboard');
+  revalidatePath(`/dashboard/mensajes/${requestId}`);
+  after(() =>
+    notifyAdoptionDecision({ adopterId: request.adopterId, requestId, petName: request.petName, status: decision }),
+  );
+  return actionOk(null);
 }

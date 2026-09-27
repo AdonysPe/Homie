@@ -157,6 +157,33 @@ export async function notifyNewMessage(params: {
   });
 }
 
+export async function notifyAdoptionDecision(params: {
+  adopterId: string;
+  requestId: string;
+  petName: string;
+  status: 'aceptada' | 'rechazada';
+}): Promise<void> {
+  const link = `/dashboard/mensajes/${params.requestId}`;
+  const accepted = params.status === 'aceptada';
+  await notify({
+    userId: params.adopterId,
+    type: accepted ? 'adoption_accepted' : 'adoption_rejected',
+    title: accepted ? `¡Buenas noticias sobre ${params.petName}!` : `Sobre tu carta para ${params.petName}`,
+    message: accepted
+      ? `La familia de ${params.petName} aceptó tu carta de presentación.`
+      : `La familia de ${params.petName} decidió seguir con otra familia.`,
+    link,
+    email: {
+      subject: accepted ? `Tu carta para ${params.petName} fue aceptada` : `Sobre tu carta para ${params.petName}`,
+      heading: accepted ? '¡Tu carta fue aceptada!' : 'La familia decidió seguir con otra persona',
+      body: accepted
+        ? `La familia de ${params.petName} aceptó tu carta de presentación y quiere seguir conversando contigo.`
+        : `La familia de ${params.petName} decidió seguir el proceso con otra familia. Gracias por intentarlo: hay más mascotas esperando un hogar como el tuyo.`,
+      ctaLabel: 'Ver la conversación',
+    },
+  });
+}
+
 /** Resumen para el timbre del header: contador y últimos avisos. */
 export async function getNotificationSummary(userId: string): Promise<NotificationSummary> {
   const db = await getDb();

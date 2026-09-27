@@ -3,13 +3,15 @@
 import { useRouter } from 'next/navigation';
 import { useState, useTransition } from 'react';
 
-import { LockIcon, ShieldIcon, WhatsAppIcon } from '@/components/icons';
+import { CheckIcon, LockIcon, ShieldIcon, WhatsAppIcon, XCircleIcon } from '@/components/icons';
 import { Button } from '@/components/ui/Button';
 import { Sheet } from '@/components/ui/Sheet';
 import { toast } from '@/components/ui/Toast';
+import { cn } from '@/lib/cn';
 import { formatShortDate } from '@/lib/format';
-import { homeTypeLabel, REQUEST_STATUS_LABELS } from '@/features/adoption/lib/adoption-options';
+import { homeTypeLabel, REQUEST_STATUS_LABELS, type RequestStatus } from '@/features/adoption/lib/adoption-options';
 import { ChatWindow } from '@/features/chat/components/ChatWindow';
+import { respondToAdoptionRequest } from '@/server/actions/adoption';
 import { shareContact } from '@/server/actions/messages';
 import type { Thread } from '@/server/messages';
 
@@ -82,8 +84,16 @@ function PrivacyBanner({ thread }: { thread: Thread }) {
   );
 }
 
+const STATUS_BADGE: Record<RequestStatus, string> = {
+  pendiente: 'bg-honey-200/60 text-honey-800',
+  aceptada: 'bg-sage-100 text-sage-800',
+  rechazada: 'bg-cream-300 text-ink-500',
+  completada: 'bg-sage-200 text-sage-900',
+};
+
 /** La carta de presentación: el punto de partida de toda la conversación. */
 function RequestCard({ thread }: { thread: Thread }) {
+  const router = useRouter();
   const { request } = thread;
   const isOwner = thread.role === 'owner';
 
@@ -93,8 +103,11 @@ function RequestCard({ thread }: { thread: Thread }) {
         <p className="text-xs font-bold uppercase tracking-[0.12em] text-ink-400">
           {isOwner ? 'Carta de presentación' : 'Tu carta de presentación'}
         </p>
-        <span className="text-xs text-ink-400">
-          {formatShortDate(request.createdAt)} · {REQUEST_STATUS_LABELS[request.status]}
+        <span className="flex items-center gap-1.5 text-xs text-ink-400">
+          {formatShortDate(request.createdAt)}
+          <span className={cn('rounded-pill px-2 py-0.5 font-semibold', STATUS_BADGE[request.status])}>
+            {REQUEST_STATUS_LABELS[request.status]}
+          </span>
         </span>
       </header>
       <div>
@@ -104,7 +117,58 @@ function RequestCard({ thread }: { thread: Thread }) {
         </p>
       </div>
       <p className="whitespace-pre-wrap text-[0.95rem] leading-relaxed text-ink-700">{request.message}</p>
+
+      {isOwner && request.status === 'pendiente' ? (
+        <RequestDecisionActions requestId={thread.id} onDecided={() => router.refresh()} />
+      ) : null}
     </article>
+  );
+}
+
+/** La familia decide, sin vuelta atrás: aceptar sigue la conversación, rechazar la cierra. */
+function RequestDecisionActions({ requestId, onDecided }: { requestId: string; onDecided: () => void }) {
+  const [isPending, startTransition] = useTransition();
+  const [decision, setDecision] = useState<'aceptada' | 'rechazada' | null>(null);
+
+  const respond = (next: 'aceptada' | 'rechazada') => {
+    setDecision(next);
+    startTransition(async () => {
+      const result = await respondToAdoptionRequest(requestId, next);
+      if (!result.ok) {
+        toast.error(result.error);
+        setDecision(null);
+        return;
+      }
+      toast.success(next === 'aceptada' ? 'Aceptaste la solicitud' : 'Rechazaste la solicitud');
+      onDecided();
+    });
+  };
+
+  return (
+    <div className="flex flex-col gap-2 border-t border-cream-200 pt-3 sm:flex-row">
+      <Button
+        variant="quiet"
+        size="sm"
+        fullWidth
+        onClick={() => respond('aceptada')}
+        isLoading={isPending && decision === 'aceptada'}
+        disabled={isPending && decision !== 'aceptada'}
+      >
+        <CheckIcon size={16} />
+        Aceptar
+      </Button>
+      <Button
+        variant="ghost"
+        size="sm"
+        fullWidth
+        onClick={() => respond('rechazada')}
+        isLoading={isPending && decision === 'rechazada'}
+        disabled={isPending && decision !== 'rechazada'}
+      >
+        <XCircleIcon size={16} />
+        Rechazar
+      </Button>
+    </div>
   );
 }
 
