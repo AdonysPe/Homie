@@ -8,7 +8,7 @@ import { ownerDisplayName } from '@/lib/privacy';
 import { listChatMessages } from './chat';
 import { getDb, schema } from './db';
 
-const { adoptionRequests, messages, pets } = schema;
+const { adoptionRequests, messages, pets, reviews } = schema;
 
 export type RequestRole = 'owner' | 'adopter';
 
@@ -172,6 +172,8 @@ export interface Thread {
     myConfirmedAt: string | null;
     counterpartConfirmedAt: string | null;
   };
+  /** Mi propia reseña de esta adopción, si ya la dejé. */
+  myReview: { rating: number; comment: string } | null;
 }
 
 /** Devuelve el hilo solo si `userId` participa (si no, `null`: se trata como inexistente). */
@@ -215,7 +217,14 @@ export async function getThread(requestId: string, userId: string): Promise<Thre
   const role: RequestRole = request.ownerId === userId ? 'owner' : 'adopter';
   const serverNow = new Date().toISOString();
   const counterpartId = role === 'owner' ? request.adopterId : request.ownerId;
-  const chatMessages = await listChatMessages(requestId, userId);
+  const [chatMessages, [myReview]] = await Promise.all([
+    listChatMessages(requestId, userId),
+    db
+      .select({ rating: reviews.rating, comment: reviews.comment })
+      .from(reviews)
+      .where(and(eq(reviews.requestId, requestId), eq(reviews.reviewerId, userId)))
+      .limit(1),
+  ]);
 
   const [photo] = request.petPhotos;
   const canSeeContact = role === 'adopter' && request.contactSharedAt !== null;
@@ -259,5 +268,6 @@ export async function getThread(requestId: string, userId: string): Promise<Thre
       counterpartConfirmedAt:
         (role === 'owner' ? request.adopterConfirmedAt : request.ownerConfirmedAt)?.toISOString() ?? null,
     },
+    myReview: myReview ?? null,
   };
 }

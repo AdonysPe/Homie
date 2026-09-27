@@ -262,3 +262,10 @@ export const XCircleIcon = (props: LineIconProps) => (
     <path d="m9.3 9.3 5.4 5.4M14.7 9.3l-5.4 5.4" />
   </LineIcon>
 );
+
+/** Sólida (no de línea, como las demás): el color se controla con `text-*` en quien la usa. */
+export const StarIcon = ({ size = 24, ...props }: SVGProps<SVGSVGElement> & { size?: number }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="currentColor" aria-hidden focusable="false" {...props}>
+    <path d="M12 3.2l2.6 5.6 6.1.7-4.5 4.2 1.2 6-5.4-3-5.4 3 1.2-6-4.5-4.2 6.1-.7Z" />
+  </svg>
+);

@@ -205,6 +205,22 @@ export async function notifyAdoptionCompleted(params: {
   });
 }
 
+export async function notifyReviewReceived(params: { userId: string; rating: number }): Promise<void> {
+  await notify({
+    userId: params.userId,
+    type: 'review_received',
+    title: 'Recibiste una reseña',
+    message: `Te calificaron con ${params.rating} de 5 estrellas.`,
+    link: `/perfil/${params.userId}`,
+    email: {
+      subject: 'Recibiste una reseña en Homie',
+      heading: 'Recibiste una nueva reseña',
+      body: `Alguien con quien completaste una adopción te calificó con ${params.rating} de 5 estrellas.`,
+      ctaLabel: 'Ver mi perfil',
+    },
+  });
+}
+
 /** Resumen para el timbre del header: contador y últimos avisos. */
 export async function getNotificationSummary(userId: string): Promise<NotificationSummary> {
   const db = await getDb();

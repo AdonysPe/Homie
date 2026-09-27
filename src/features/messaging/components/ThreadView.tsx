@@ -12,6 +12,7 @@ import { formatShortDate } from '@/lib/format';
 import { homeTypeLabel, REQUEST_STATUS_LABELS, type RequestStatus } from '@/features/adoption/lib/adoption-options';
 import { ChatWindow } from '@/features/chat/components/ChatWindow';
 import { CompletionCard } from '@/features/reviews/components/CompletionCard';
+import { ReviewSection } from '@/features/reviews/components/ReviewSection';
 import { respondToAdoptionRequest } from '@/server/actions/adoption';
 import { shareContact } from '@/server/actions/messages';
 import type { Thread } from '@/server/messages';
@@ -37,6 +38,8 @@ export function ThreadView({ thread, canWrite }: { thread: Thread; canWrite: boo
         hasUnread={thread.hasUnread}
         canWrite={canWrite}
       />
+
+      <ReviewSection thread={thread} />
     </div>
   );
 }
