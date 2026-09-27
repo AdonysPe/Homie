@@ -9,15 +9,21 @@ import { StickyPublishCta } from '@/features/home/components/StickyPublishCta';
 import { PetsSection } from '@/features/pets/components/PetsSection';
 import { PublishSection, type PublishAccess } from '@/features/publish/components/PublishSection';
 import { listPublicPets } from '@/server/pets';
-import { getAccountSummary } from '@/server/session';
+import { getNotificationSummary } from '@/server/notifications';
+import { getAccountSummary, getCurrentUser } from '@/server/session';
 
 export default async function HomePage() {
-  const [listings, account] = await Promise.all([listPublicPets(), getAccountSummary()]);
+  const user = await getCurrentUser();
+  const [listings, account, notificationSummary] = await Promise.all([
+    listPublicPets(),
+    getAccountSummary(),
+    user ? getNotificationSummary(user.id) : Promise.resolve(null),
+  ]);
   const publishAccess: PublishAccess = !account ? 'anonymous' : account.emailVerified ? 'ready' : 'unverified';
 
   return (
     <>
-      <SiteHeader account={account} />
+      <SiteHeader account={account} notifications={notificationSummary} />
 
       <main id="contenido">
         <HeroSection />

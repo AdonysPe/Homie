@@ -248,3 +248,17 @@ export const ImageIcon = (props: LineIconProps) => (
     <path d="m20.5 15.5-4.6-4.6a1.2 1.2 0 0 0-1.7 0L6 19.5" />
   </LineIcon>
 );
+
+export const BellIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <path d="M6 9.5a6 6 0 0 1 12 0v4.4l1.7 2.9H4.3L6 13.9V9.5Z" />
+    <path d="M10 19.8a2.2 2.2 0 0 0 4 0" />
+  </LineIcon>
+);
+
+export const XCircleIcon = (props: LineIconProps) => (
+  <LineIcon {...props}>
+    <circle cx="12" cy="12" r="8.3" />
+    <path d="m9.3 9.3 5.4 5.4M14.7 9.3l-5.4 5.4" />
+  </LineIcon>
+);

@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 
 import { and, count, eq, gt } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { after } from 'next/server';
 
 import {
   adoptionRequestSchema,
@@ -11,6 +12,7 @@ import {
 } from '@/features/adoption/lib/adoption-schema';
 import { actionError, actionOk, type ActionResult } from '@/lib/action-result';
 import { getDb, schema } from '../db';
+import { notifyNewRequest } from '../notifications';
 import { requireVerifiedUser } from '../session';
 
 const { adoptionRequests, pets } = schema;
@@ -37,7 +39,7 @@ export async function submitAdoptionRequest(
 
   const db = await getDb();
   const [pet] = await db
-    .select({ id: pets.id, ownerId: pets.ownerId, status: pets.status, slug: pets.slug })
+    .select({ id: pets.id, ownerId: pets.ownerId, status: pets.status, slug: pets.slug, name: pets.name })
     .from(pets)
     .where(eq(pets.id, values.petId))
     .limit(1);
@@ -86,5 +88,7 @@ export async function submitAdoptionRequest(
 
   revalidatePath('/dashboard');
   revalidatePath(`/mascota/${pet.slug}`);
+  // Corre después de responder: un email o push lento nunca debe demorar la confirmación.
+  after(() => notifyNewRequest({ ownerId: pet.ownerId, requestId, petName: pet.name, adopterName: values.adopterName }));
   return actionOk({ requestId });
 }

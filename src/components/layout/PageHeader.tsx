@@ -3,8 +3,10 @@ import Link from 'next/link';
 import { ArrowLeftIcon } from '@/components/icons';
 import { AccountMenu } from '@/features/auth/components/AccountMenu';
 import { BrandMark } from '@/features/home/components/BrandMark';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
 import { SITE } from '@/lib/site';
-import { getAccountSummary } from '@/server/session';
+import { getNotificationSummary } from '@/server/notifications';
+import { getAccountSummary, getCurrentUser } from '@/server/session';
 
 /**
  * Header de páginas internas: sin animaciones de scroll ni anclas de la home.
@@ -17,7 +19,11 @@ export async function PageHeader({
   backHref?: string;
   backLabel?: string;
 }) {
-  const account = await getAccountSummary();
+  const user = await getCurrentUser();
+  const [account, notificationSummary] = await Promise.all([
+    getAccountSummary(),
+    user ? getNotificationSummary(user.id) : Promise.resolve(null),
+  ]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-cream-300/80 bg-cream-100/80 backdrop-blur-xl">
@@ -45,6 +51,7 @@ export async function PageHeader({
           >
             Publicar
           </Link>
+          {notificationSummary ? <NotificationBell initial={notificationSummary} /> : null}
           <AccountMenu account={account} />
         </div>
       </div>

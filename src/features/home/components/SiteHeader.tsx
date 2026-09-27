@@ -3,6 +3,8 @@
 import { motion, useScroll, useTransform } from 'framer-motion';
 
 import { AccountMenu, type AccountSummary } from '@/features/auth/components/AccountMenu';
+import { NotificationBell } from '@/features/notifications/components/NotificationBell';
+import type { NotificationSummary } from '@/features/notifications/lib/notification-item';
 import { SITE } from '@/lib/site';
 import { scrollToSection } from '@/lib/scroll';
 import { BrandMark } from './BrandMark';
@@ -17,7 +19,13 @@ const NAV_LINKS = [
  * Barra de navegación estilo apple.com: baja, translúcida (vidrio esmerilado),
  * enlaces en texto chico y una línea fina que aparece al hacer scroll.
  */
-export function SiteHeader({ account }: { account: AccountSummary | null }) {
+export function SiteHeader({
+  account,
+  notifications,
+}: {
+  account: AccountSummary | null;
+  notifications: NotificationSummary | null;
+}) {
   const { scrollY } = useScroll();
   const borderOpacity = useTransform(scrollY, [0, 40], [0, 1]);
 
@@ -54,6 +62,7 @@ export function SiteHeader({ account }: { account: AccountSummary | null }) {
           >
             Publicar
           </button>
+          {notifications ? <NotificationBell initial={notifications} /> : null}
           <AccountMenu account={account} />
         </div>
       </div>

@@ -4,19 +4,13 @@ import { and, count, desc, eq, or, sql } from 'drizzle-orm';
 
 import type { HomeType, RequestStatus } from '@/features/adoption/lib/adoption-options';
 import type { ChatMessage } from '@/features/chat/lib/chat-types';
+import { ownerDisplayName } from '@/lib/privacy';
 import { listChatMessages } from './chat';
 import { getDb, schema } from './db';
 
 const { adoptionRequests, messages, pets } = schema;
 
 export type RequestRole = 'owner' | 'adopter';
-
-/**
- * Privacidad asimétrica: el adoptante se presenta con su nombre real;
- * la familia que da en adopción se muestra como "Familia de …" y su
- * email o teléfono nunca se consultan aquí.
- */
-export const ownerDisplayName = (petName: string) => `Familia de ${petName}`;
 
 export async function findRequestId(petId: string, adopterId: string): Promise<string | null> {
   const db = await getDb();

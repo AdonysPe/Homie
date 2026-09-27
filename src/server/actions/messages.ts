@@ -4,6 +4,7 @@ import { randomUUID } from 'node:crypto';
 
 import { and, count, eq, gt, isNull, lt, or } from 'drizzle-orm';
 import { revalidatePath } from 'next/cache';
+import { after } from 'next/server';
 
 import { chatImageUrl, type ChatMessage } from '@/features/chat/lib/chat-types';
 import { chatMessageSchema } from '@/features/messaging/lib/message-schema';
@@ -11,6 +12,7 @@ import { actionError, actionOk, type ActionResult } from '@/lib/action-result';
 import { getChatParticipant } from '../chat';
 import { getDb, schema } from '../db';
 import { readUploadedImage } from '../image-upload';
+import { notifyNewMessage } from '../notifications';
 import { requireVerifiedUser } from '../session';
 
 const { adoptionRequests, chatImages, messages } = schema;
@@ -108,6 +110,15 @@ export async function sendChatMessage(formData: FormData): Promise<ActionResult<
 
   // El chat se actualiza por el stream; esto refresca la bandeja y los contadores.
   revalidatePath('/dashboard');
+  // Corre después de responder: un email o push lento nunca debe demorar el envío.
+  after(() =>
+    notifyNewMessage({
+      receiverId: participant.counterpartId,
+      requestId,
+      senderDisplayName: participant.displayName,
+      preview: content,
+    }),
+  );
 
   return actionOk({
     id: messageId,

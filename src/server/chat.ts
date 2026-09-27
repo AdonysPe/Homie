@@ -3,9 +3,10 @@ import 'server-only';
 import { and, asc, eq, gt, gte, isNotNull, or } from 'drizzle-orm';
 
 import { chatImageUrl, TYPING_WINDOW_MS, type ChatMessage } from '@/features/chat/lib/chat-types';
+import { ownerDisplayName } from '@/lib/privacy';
 import { getDb, schema } from './db';
 
-const { adoptionRequests, chatImages, messages } = schema;
+const { adoptionRequests, chatImages, messages, pets } = schema;
 
 export type ChatRole = 'owner' | 'adopter';
 
@@ -14,6 +15,12 @@ export interface ChatParticipant {
   role: ChatRole;
   userId: string;
   counterpartId: string;
+  petName: string;
+  /**
+   * Nombre con el que se debe identificar a `userId` frente a la otra parte:
+   * el nombre real si es quien adopta, o "Familia de {mascota}" si es quien la da.
+   */
+  displayName: string;
 }
 
 /**
@@ -23,8 +30,14 @@ export interface ChatParticipant {
 export async function getChatParticipant(requestId: string, userId: string): Promise<ChatParticipant | null> {
   const db = await getDb();
   const [row] = await db
-    .select({ ownerId: adoptionRequests.ownerId, adopterId: adoptionRequests.adopterId })
+    .select({
+      ownerId: adoptionRequests.ownerId,
+      adopterId: adoptionRequests.adopterId,
+      adopterName: adoptionRequests.adopterName,
+      petName: pets.name,
+    })
     .from(adoptionRequests)
+    .innerJoin(pets, eq(pets.id, adoptionRequests.petId))
     .where(
       and(
         eq(adoptionRequests.id, requestId),
@@ -35,7 +48,14 @@ export async function getChatParticipant(requestId: string, userId: string): Pro
 
   if (!row) return null;
   const role: ChatRole = row.ownerId === userId ? 'owner' : 'adopter';
-  return { requestId, role, userId, counterpartId: role === 'owner' ? row.adopterId : row.ownerId };
+  return {
+    requestId,
+    role,
+    userId,
+    counterpartId: role === 'owner' ? row.adopterId : row.ownerId,
+    petName: row.petName,
+    displayName: role === 'owner' ? ownerDisplayName(row.petName) : row.adopterName,
+  };
 }
 
 const messageColumns = {

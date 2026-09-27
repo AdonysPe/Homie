@@ -42,6 +42,26 @@ export async function sendEmail(message: EmailMessage): Promise<void> {
 const escapeHtml = (value: string) =>
   value.replace(/[&<>"']/g, (char) => `&#${char.charCodeAt(0)};`);
 
+/** Plantilla compartida para avisos transaccionales (nueva solicitud, mensaje, decisión…). */
+export function simpleEmail(params: {
+  subject: string;
+  heading: string;
+  body: string;
+  ctaLabel: string;
+  ctaUrl: string;
+}): Omit<EmailMessage, 'to'> {
+  const { subject, heading, body, ctaLabel, ctaUrl } = params;
+  return {
+    subject,
+    text: `${heading}\n\n${body}\n\n${ctaLabel}: ${ctaUrl}`,
+    html: `<div style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:480px;margin:0 auto;padding:32px 24px;color:#2A2521">
+  <p style="font-size:17px;font-weight:600;margin:0 0 12px">${escapeHtml(heading)}</p>
+  <p style="font-size:15px;line-height:1.5;color:#4A423B;margin:0 0 24px">${escapeHtml(body)}</p>
+  <a href="${escapeHtml(ctaUrl)}" style="display:inline-block;background:#C06E4D;color:#fff;text-decoration:none;font-weight:600;padding:14px 24px;border-radius:999px">${escapeHtml(ctaLabel)}</a>
+</div>`,
+  };
+}
+
 export function verificationEmail(name: string, url: string): Omit<EmailMessage, 'to'> {
   const safeName = escapeHtml(name);
   return {
