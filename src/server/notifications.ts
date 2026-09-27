@@ -184,6 +184,27 @@ export async function notifyAdoptionDecision(params: {
   });
 }
 
+export async function notifyAdoptionCompleted(params: {
+  userId: string;
+  requestId: string;
+  petName: string;
+}): Promise<void> {
+  const link = `/dashboard/mensajes/${params.requestId}`;
+  await notify({
+    userId: params.userId,
+    type: 'adoption_completed',
+    title: '¡Adopción completada!',
+    message: `Confirmaron juntos que la adopción de ${params.petName} se completó. Ya pueden dejarse una reseña.`,
+    link,
+    email: {
+      subject: `¡La adopción de ${params.petName} se completó!`,
+      heading: '¡Adopción completada!',
+      body: `Confirmaron juntos que la adopción de ${params.petName} se completó. Ahora pueden dejarse una reseña.`,
+      ctaLabel: 'Dejar una reseña',
+    },
+  });
+}
+
 /** Resumen para el timbre del header: contador y últimos avisos. */
 export async function getNotificationSummary(userId: string): Promise<NotificationSummary> {
   const db = await getDb();

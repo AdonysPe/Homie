@@ -12,7 +12,7 @@ import {
 } from '@/features/adoption/lib/adoption-schema';
 import { actionError, actionOk, type ActionResult } from '@/lib/action-result';
 import { getDb, schema } from '../db';
-import { notifyAdoptionDecision, notifyNewRequest } from '../notifications';
+import { notifyAdoptionCompleted, notifyAdoptionDecision, notifyNewRequest } from '../notifications';
 import { requireVerifiedUser } from '../session';
 
 const { adoptionRequests, pets } = schema;
@@ -136,4 +136,68 @@ export async function respondToAdoptionRequest(
     notifyAdoptionDecision({ adopterId: request.adopterId, requestId, petName: request.petName, status: decision }),
   );
   return actionOk(null);
+}
+
+/**
+ * Cualquiera de las dos partes confirma que la adopción se concretó. Recién
+ * cuando las DOS confirmaron, la solicitud pasa a `completada` y se habilitan
+ * las reseñas: ninguna persona puede activarlo por su cuenta.
+ */
+export async function confirmAdoptionCompleted(requestId: string): Promise<ActionResult<{ completed: boolean }>> {
+  const auth = await requireVerifiedUser();
+  if (!auth.ok) return auth;
+
+  const db = await getDb();
+  const [request] = await db
+    .select({
+      ownerId: adoptionRequests.ownerId,
+      adopterId: adoptionRequests.adopterId,
+      status: adoptionRequests.status,
+      ownerConfirmedAt: adoptionRequests.ownerConfirmedAt,
+      adopterConfirmedAt: adoptionRequests.adopterConfirmedAt,
+      petName: pets.name,
+    })
+    .from(adoptionRequests)
+    .innerJoin(pets, eq(pets.id, adoptionRequests.petId))
+    .where(eq(adoptionRequests.id, requestId))
+    .limit(1);
+
+  const isOwner = request?.ownerId === auth.user.id;
+  const isAdopter = request?.adopterId === auth.user.id;
+  if (!request || (!isOwner && !isAdopter)) {
+    return actionError('No encontramos esta solicitud.', 'forbidden');
+  }
+  if (request.status !== 'aceptada' && request.status !== 'completada') {
+    return actionError('Primero tienen que aceptar la solicitud.', 'invalid');
+  }
+
+  const alreadyConfirmedByMe = isOwner ? request.ownerConfirmedAt !== null : request.adopterConfirmedAt !== null;
+  if (alreadyConfirmedByMe) return actionOk({ completed: request.status === 'completada' });
+
+  const counterpartConfirmed = isOwner ? request.adopterConfirmedAt !== null : request.ownerConfirmedAt !== null;
+  const now = new Date();
+
+  await db
+    .update(adoptionRequests)
+    .set({
+      ...(isOwner ? { ownerConfirmedAt: now } : { adopterConfirmedAt: now }),
+      ...(counterpartConfirmed ? { status: 'completada' as const } : {}),
+      updatedAt: now,
+      lastActivityAt: now,
+    })
+    .where(eq(adoptionRequests.id, requestId));
+
+  revalidatePath('/dashboard');
+  revalidatePath(`/dashboard/mensajes/${requestId}`);
+
+  if (counterpartConfirmed) {
+    after(() =>
+      Promise.all([
+        notifyAdoptionCompleted({ userId: request.ownerId, requestId, petName: request.petName }),
+        notifyAdoptionCompleted({ userId: request.adopterId, requestId, petName: request.petName }),
+      ]),
+    );
+  }
+
+  return actionOk({ completed: counterpartConfirmed });
 }

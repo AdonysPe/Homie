@@ -166,6 +166,12 @@ export interface Thread {
   hasUnread: boolean;
   /** Hora del servidor al armar el hilo: el stream en vivo arranca desde acá. */
   serverNow: string;
+  counterpartId: string;
+  /** Confirmación de cada parte de que la adopción se concretó (habilita las reseñas). */
+  completion: {
+    myConfirmedAt: string | null;
+    counterpartConfirmedAt: string | null;
+  };
 }
 
 /** Devuelve el hilo solo si `userId` participa (si no, `null`: se trata como inexistente). */
@@ -183,6 +189,8 @@ export async function getThread(requestId: string, userId: string): Promise<Thre
       status: adoptionRequests.status,
       isReadByOwner: adoptionRequests.isReadByOwner,
       contactSharedAt: adoptionRequests.contactSharedAt,
+      ownerConfirmedAt: adoptionRequests.ownerConfirmedAt,
+      adopterConfirmedAt: adoptionRequests.adopterConfirmedAt,
       createdAt: adoptionRequests.createdAt,
       petSlug: pets.slug,
       petName: pets.name,
@@ -206,6 +214,7 @@ export async function getThread(requestId: string, userId: string): Promise<Thre
 
   const role: RequestRole = request.ownerId === userId ? 'owner' : 'adopter';
   const serverNow = new Date().toISOString();
+  const counterpartId = role === 'owner' ? request.adopterId : request.ownerId;
   const chatMessages = await listChatMessages(requestId, userId);
 
   const [photo] = request.petPhotos;
@@ -244,5 +253,11 @@ export async function getThread(requestId: string, userId: string): Promise<Thre
       chatMessages.some((message) => !message.isMine && message.readAt === null) ||
       (role === 'owner' && !request.isReadByOwner),
     serverNow,
+    counterpartId,
+    completion: {
+      myConfirmedAt: (role === 'owner' ? request.ownerConfirmedAt : request.adopterConfirmedAt)?.toISOString() ?? null,
+      counterpartConfirmedAt:
+        (role === 'owner' ? request.adopterConfirmedAt : request.ownerConfirmedAt)?.toISOString() ?? null,
+    },
   };
 }

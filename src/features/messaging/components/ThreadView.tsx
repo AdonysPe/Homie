@@ -11,6 +11,7 @@ import { cn } from '@/lib/cn';
 import { formatShortDate } from '@/lib/format';
 import { homeTypeLabel, REQUEST_STATUS_LABELS, type RequestStatus } from '@/features/adoption/lib/adoption-options';
 import { ChatWindow } from '@/features/chat/components/ChatWindow';
+import { CompletionCard } from '@/features/reviews/components/CompletionCard';
 import { respondToAdoptionRequest } from '@/server/actions/adoption';
 import { shareContact } from '@/server/actions/messages';
 import type { Thread } from '@/server/messages';
@@ -25,6 +26,8 @@ export function ThreadView({ thread, canWrite }: { thread: Thread; canWrite: boo
       <PrivacyBanner thread={thread} />
 
       <RequestCard thread={thread} />
+
+      <CompletionCard thread={thread} />
 
       <ChatWindow
         requestId={thread.id}
