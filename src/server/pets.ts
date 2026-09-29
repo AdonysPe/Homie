@@ -85,6 +85,16 @@ function toListing(row: PublicPetRow): PetListing {
 
 const PUBLIC_STATUSES: PetStatus[] = ['publicada', 'adoptada'];
 
+/** Publicaciones de una familia, para su perfil público de reputación. */
+export async function listPublicPetsByOwner(ownerId: string): Promise<PetListing[]> {
+  const db = await getDb();
+  const rows = await selectPublicPets(db)
+    .where(and(eq(pets.ownerId, ownerId), inArray(pets.status, PUBLIC_STATUSES)))
+    .orderBy(desc(pets.publishedAt))
+    .limit(12);
+  return rows.map(toListing);
+}
+
 /** Galería pública: solo activas y adoptadas (las pausadas o en revisión no se listan). */
 export async function listPublicPets(): Promise<PetListing[]> {
   const db = await getDb();
