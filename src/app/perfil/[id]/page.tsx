@@ -61,7 +61,7 @@ export default async function ProfilePage({ params }: { params: Promise<{ id: st
                     <StarRating value={review.rating} size={15} />
                     <span className="flex items-center gap-1 text-xs text-ink-400">
                       <CheckIcon size={13} className="text-sage-500" />
-                      Adopción verificada · {formatShortDate(review.createdAt)}
+                      Adopción verificada · {formatShortDate(review.createdAt.toISOString())}
                     </span>
                   </div>
                   {review.comment ? (
