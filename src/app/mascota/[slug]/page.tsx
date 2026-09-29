@@ -8,6 +8,7 @@ import { PetDetail } from '@/features/pet-detail/components/PetDetail';
 import { buildPetMetadata } from '@/features/pet-detail/lib/pet-seo';
 import { findRequestId } from '@/server/messages';
 import { getPetBySlug, type PetPageData } from '@/server/pets';
+import { getRatingSummary } from '@/server/reviews';
 import { getCurrentUser, type CurrentUser } from '@/server/session';
 
 interface PetPageProps {
@@ -57,12 +58,22 @@ export default async function PetPage({ params }: PetPageProps) {
   // Una publicación pausada desaparece para todos menos para su familia.
   if (pet.status === 'pausada' && !isOwner) notFound();
 
-  const adoptionCta = await resolveAdoptionCta(pet, user);
+  const [adoptionCta, ownerRating] = await Promise.all([
+    resolveAdoptionCta(pet, user),
+    getRatingSummary(pet.ownerId),
+  ]);
 
   return (
     <>
       <PageHeader backHref="/#mascotas" backLabel="Mascotas" />
-      <PetDetail pet={pet.listing} status={pet.status} isOwner={isOwner} adoptionCta={adoptionCta} />
+      <PetDetail
+        pet={pet.listing}
+        status={pet.status}
+        isOwner={isOwner}
+        adoptionCta={adoptionCta}
+        ownerId={pet.ownerId}
+        ownerRating={ownerRating}
+      />
       <SiteFooter />
     </>
   );

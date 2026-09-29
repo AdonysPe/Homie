@@ -46,6 +46,12 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
               {thread.role === 'owner' ? `Interesado en ${thread.pet.name}` : `Tu consulta por ${thread.pet.name}`}
             </p>
           </div>
+          <Link
+            href={`/perfil/${thread.counterpartId}`}
+            className="ml-auto shrink-0 text-sm font-medium text-clay-600 hover:text-clay-700"
+          >
+            Ver reputación
+          </Link>
         </header>
 
         {!user.emailVerified ? (

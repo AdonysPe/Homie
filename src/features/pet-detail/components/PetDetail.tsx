@@ -24,6 +24,8 @@ import {
 } from '@/features/adoption/components/AdoptionRequestButton';
 import { statusPresentation } from '@/features/pets/lib/listing-status';
 import { ReportButton } from '@/features/reports/components/ReportButton';
+import { StarRating } from '@/features/reviews/components/StarRating';
+import type { RatingSummary } from '@/server/reviews';
 import { cn } from '@/lib/cn';
 import { idealHomeLabel, sexLabel, sizeLabel, speciesLabel } from '@/lib/pet-catalog';
 import { absoluteUrl, SITE } from '@/lib/site';
@@ -67,6 +69,8 @@ interface PetDetailProps {
   status: PetStatus;
   isOwner: boolean;
   adoptionCta: AdoptionCtaState;
+  ownerId: string;
+  ownerRating: RatingSummary;
 }
 
 const STATUS_NOTICES: Partial<Record<PetStatus, { title: string; body: string }>> = {
@@ -80,7 +84,7 @@ const STATUS_NOTICES: Partial<Record<PetStatus, { title: string; body: string }>
   },
 };
 
-export function PetDetail({ pet, status: petStatus, isOwner, adoptionCta }: PetDetailProps) {
+export function PetDetail({ pet, status: petStatus, isOwner, adoptionCta, ownerId, ownerRating }: PetDetailProps) {
   const status = statusPresentation(pet.status);
   const isAdopted = petStatus === 'adoptada';
   const isActive = petStatus === 'publicada';
@@ -247,6 +251,25 @@ export function PetDetail({ pet, status: petStatus, isOwner, adoptionCta }: PetD
                 y cuándo compartir su WhatsApp.
               </p>
             </div>
+
+            {!isOwner ? (
+              <Link
+                href={`/perfil/${ownerId}`}
+                className="flex items-center gap-3 rounded-card border border-cream-300 bg-white p-4 transition-colors hover:border-clay-300 hover:bg-clay-50"
+              >
+                {ownerRating.count > 0 ? (
+                  <StarRating value={ownerRating.average ?? 0} size={16} />
+                ) : (
+                  <ShieldIcon size={18} className="text-sage-600" />
+                )}
+                <span className="flex-1 text-sm font-medium text-ink-900">
+                  {ownerRating.count > 0
+                    ? `${(ownerRating.average ?? 0).toFixed(1)} · ${ownerRating.count} ${ownerRating.count === 1 ? 'reseña' : 'reseñas'}`
+                    : 'Ver reputación de esta familia'}
+                </span>
+                <span className="text-sm text-clay-600">Ver perfil →</span>
+              </Link>
+            ) : null}
 
             {!isOwner ? (
               <div>

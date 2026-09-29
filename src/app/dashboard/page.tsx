@@ -38,7 +38,12 @@ export default async function DashboardPage({
       <main id="contenido" className="shell max-w-3xl pb-section pt-8 sm:pt-12">
         <header className="flex flex-col gap-2">
           <h1 className="text-display-md font-display">Hola, {user.name.split(' ')[0]}</h1>
-          <VerifiedBadge verified={user.emailVerified} className="self-start" />
+          <div className="flex flex-wrap items-center gap-2">
+            <VerifiedBadge verified={user.emailVerified} />
+            <Link href={`/perfil/${user.id}`} className="text-sm font-medium text-clay-600 hover:text-clay-700">
+              Ver mi perfil de confianza
+            </Link>
+          </div>
         </header>
 
         {!user.emailVerified ? (
